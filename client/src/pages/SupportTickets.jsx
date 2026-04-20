@@ -79,7 +79,7 @@ function SupportTickets() {
       setTickets(ticketRows || []);
       setCustomers(customerRows || []);
     } catch (e) {
-      toast.error(e.response?.data?.message || 'Khong tai duoc support tickets');
+      toast.error(e.response?.data?.message || 'Không tải được support tickets');
     } finally {
       setLoading(false);
     }
@@ -134,7 +134,7 @@ function SupportTickets() {
         toast.success('Cap nhat ticket thanh cong');
       } else {
         await createSupportTicketApi(payload);
-        toast.success('Tao ticket thanh cong');
+        toast.success('Tạo ticket thanh cong');
       }
 
       resetForm();
@@ -150,7 +150,7 @@ function SupportTickets() {
     try {
       const updated = await updateSupportTicketApi(ticket.id, { status });
       setTickets((prev) => prev.map((t) => (t.id === ticket.id ? updated : t)));
-      toast.success('Da cap nhat trang thai');
+      toast.success('Da cập nhật trạng thái');
     } catch (e) {
       toast.error(e.response?.data?.message || 'Khong cap nhat duoc trang thai');
     }
@@ -163,7 +163,7 @@ function SupportTickets() {
       setTickets((prev) => prev.filter((t) => t.id !== id));
       toast.success('Da xoa support ticket');
     } catch (e) {
-      toast.error(e.response?.data?.message || 'Xoa support ticket that bai');
+      toast.error(e.response?.data?.message || 'Xóa support ticket that bai');
     }
   };
 
@@ -176,7 +176,7 @@ function SupportTickets() {
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900">Support Tickets</h2>
-            <p className="text-xs text-slate-500">Theo doi ticket ho tro theo khach hang, uu tien va SLA</p>
+            <p className="text-xs text-slate-500">Theo dõi ticket hỗ trợ theo khách hàng, ưu tiên va SLA</p>
           </div>
         </div>
       </section>
@@ -191,7 +191,7 @@ function SupportTickets() {
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[400px_1fr]">
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-slate-900">
-            {editingId ? <><Pencil className="h-4 w-4 text-amber-500" /> Cap nhat ticket</> : <><CirclePlus className="h-4 w-4 text-blue-600" /> Tao ticket moi</>}
+            {editingId ? <><Pencil className="h-4 w-4 text-amber-500" /> Cap nhat ticket</> : <><CirclePlus className="h-4 w-4 text-blue-600" /> Tạo ticket moi</>}
           </h3>
 
           <form className="space-y-3" onSubmit={onSubmit}>
@@ -231,11 +231,11 @@ function SupportTickets() {
 
             <div className="flex items-center gap-2">
               <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">
-                {editingId ? 'Luu thay doi' : 'Tao ticket'}
+                {editingId ? 'Luu thay doi' : 'Tạo ticket'}
               </button>
               {editingId && (
                 <button type="button" onClick={resetForm} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600">
-                  Huy
+                  Hủy
                 </button>
               )}
             </div>
@@ -264,7 +264,7 @@ function SupportTickets() {
           {loading ? (
             <div className="p-8 text-center text-sm text-slate-400">Dang tai...</div>
           ) : filtered.length === 0 ? (
-            <div className="p-8 text-center text-sm text-slate-400">Chua co support ticket nao</div>
+            <div className="p-8 text-center text-sm text-slate-400">Chưa có support ticket nao</div>
           ) : (
             <div className="divide-y divide-slate-100">
               {filtered.map((ticket) => (

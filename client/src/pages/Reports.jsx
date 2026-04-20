@@ -38,10 +38,10 @@ const STAGE_COLORS = {
 
 const STAGE_LABELS = {
   LEAD: 'Moi',
-  CONTACTED: 'Da lien he',
-  NEGOTIATION: 'Dam phan',
-  WON: 'Thanh cong',
-  LOST: 'That bai',
+  CONTACTED: 'Đã liên hệ',
+  NEGOTIATION: 'Đàm phán',
+  WON: 'Thành công',
+  LOST: 'Thất bại',
 };
 
 const labelMonth = (monthKey) => {
@@ -83,7 +83,7 @@ function Reports() {
       const result = await getDashboardApi();
       setData(result);
     } catch (err) {
-      setError(err.response?.data?.message || 'Khong tai duoc du lieu bao cao');
+      setError(err.response?.data?.message || 'Không tải được du lieu bao cao');
     } finally {
       setLoading(false);
     }
@@ -108,10 +108,10 @@ function Reports() {
   const winRate = data.totalDeals ? Math.round((won / data.totalDeals) * 100) : 0;
 
   const kpis = [
-    { label: 'Tong doanh thu', value: money.format(data.totalRevenue), icon: CircleDollarSign, iconColor: 'text-emerald-500', bar: 'bg-emerald-500', sub: `${won} deal da chot` },
-    { label: 'Tong khach hang', value: data.totalCustomers, icon: Users, iconColor: 'text-violet-500', bar: 'bg-violet-500', sub: 'Trong he thong' },
-    { label: 'Tong giao dich', value: data.totalDeals, icon: Handshake, iconColor: 'text-blue-500', bar: 'bg-blue-500', sub: `${won} WON / ${lost} LOST` },
-    { label: 'Win Rate', value: `${winRate}%`, icon: TrendingUp, iconColor: winRate >= 50 ? 'text-emerald-500' : 'text-rose-500', bar: winRate >= 50 ? 'bg-emerald-500' : 'bg-rose-500', sub: winRate >= 50 ? 'Hieu suat tot' : 'Can cai thien' },
+    { label: 'Tổng doanh thu', value: money.format(data.totalRevenue), icon: CircleDollarSign, iconColor: 'text-emerald-500', bar: 'bg-emerald-500', sub: `${won} deal đã chốt` },
+    { label: 'Tổng khách hàng', value: data.totalCustomers, icon: Users, iconColor: 'text-violet-500', bar: 'bg-violet-500', sub: 'Trong hệ thống' },
+    { label: 'Tổng giao dịch', value: data.totalDeals, icon: Handshake, iconColor: 'text-blue-500', bar: 'bg-blue-500', sub: `${won} WON / ${lost} LOST` },
+    { label: 'Win Rate', value: `${winRate}%`, icon: TrendingUp, iconColor: winRate >= 50 ? 'text-emerald-500' : 'text-rose-500', bar: winRate >= 50 ? 'bg-emerald-500' : 'bg-rose-500', sub: winRate >= 50 ? 'Hiệu suất tốt' : 'Cần cải thiện' },
   ];
 
   if (loading) {
@@ -137,8 +137,8 @@ function Reports() {
             <BarChart2 className="h-5 w-5 text-indigo-200" />
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-200">Analytics</p>
           </div>
-          <h1 className="mt-1 text-xl font-bold">Bao cao & Phan tich</h1>
-          <p className="mt-0.5 text-sm text-indigo-200">Tong hop hieu suat kinh doanh theo thoi gian thuc</p>
+          <h1 className="mt-1 text-xl font-bold">Báo cáo & Phan tich</h1>
+          <p className="mt-0.5 text-sm text-indigo-200">Tong hop hieu suat kinh doanh theo thời gian thực</p>
         </div>
         <button
           type="button"
@@ -146,7 +146,7 @@ function Reports() {
           className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white/20"
         >
           <RefreshCw className="h-4 w-4" />
-          Lam moi
+          Làm mới
         </button>
       </section>
 
@@ -177,7 +177,7 @@ function Reports() {
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="text-sm font-bold text-slate-900">Doanh thu theo thang</h2>
-              <p className="mt-0.5 text-xs text-slate-400">Bien dong doanh thu deal da chot</p>
+              <p className="mt-0.5 text-xs text-slate-400">Bien dong doanh thu deal đã chốt</p>
             </div>
             {revenueByMonth.length >= 2 && (() => {
               const last = revenueByMonth[revenueByMonth.length - 1].revenue;
@@ -211,7 +211,7 @@ function Reports() {
             </div>
           ) : (
             <div className="flex h-64 items-center justify-center text-sm text-slate-400">
-              Chua co du lieu doanh thu
+              Chưa có dữ liệu doanh thu
             </div>
           )}
         </article>
@@ -219,7 +219,7 @@ function Reports() {
         {/* Deal Status Donut */}
         <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="mb-4">
-            <h2 className="text-sm font-bold text-slate-900">Trang thai giao dich</h2>
+            <h2 className="text-sm font-bold text-slate-900">Trạng thái giao dich</h2>
             <p className="mt-0.5 text-xs text-slate-400">Phan bo theo stage</p>
           </div>
           {statusData.length ? (
@@ -238,7 +238,7 @@ function Reports() {
             </div>
           ) : (
             <div className="flex h-64 items-center justify-center text-sm text-slate-400">
-              Chua co du lieu
+              Chưa có dữ liệu
             </div>
           )}
         </article>
@@ -264,7 +264,7 @@ function Reports() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="flex h-56 items-center justify-center text-sm text-slate-400">Chua co du lieu</div>
+            <div className="flex h-56 items-center justify-center text-sm text-slate-400">Chưa có dữ liệu</div>
           )}
         </article>
 
@@ -272,7 +272,7 @@ function Reports() {
         <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-bold text-slate-900">Hoat dong gan day</h2>
+              <h2 className="text-sm font-bold text-slate-900">Hoạt động gần đây</h2>
               <p className="mt-0.5 text-xs text-slate-400">Log hoat dong cua team</p>
             </div>
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">
@@ -290,7 +290,7 @@ function Reports() {
                 <p className="shrink-0 text-[10px] text-slate-400">{new Date(a.createdAt).toLocaleDateString('vi-VN')}</p>
               </div>
             )) : (
-              <div className="flex h-40 items-center justify-center text-sm text-slate-400">Chua co hoat dong</div>
+              <div className="flex h-40 items-center justify-center text-sm text-slate-400">Chưa có hoat dong</div>
             )}
           </div>
         </article>
@@ -298,12 +298,12 @@ function Reports() {
 
       {/* Stage breakdown table */}
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-4 text-sm font-bold text-slate-900">Chi tiet theo giai doan</h2>
+        <h2 className="mb-4 text-sm font-bold text-slate-900">Chi tiet theo giai đoạn</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100">
-                {['Giai doan', 'So deal', 'Ty le', 'Trang thai'].map((h) => (
+                {['Giai doan', 'So deal', 'Ty le', 'Trạng thái'].map((h) => (
                   <th key={h} className="pb-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">{h}</th>
                 ))}
               </tr>
@@ -339,7 +339,7 @@ function Reports() {
               })}
               {statusData.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="py-8 text-center text-sm text-slate-400">Chua co du lieu</td>
+                  <td colSpan={4} className="py-8 text-center text-sm text-slate-400">Chưa có dữ liệu</td>
                 </tr>
               )}
             </tbody>

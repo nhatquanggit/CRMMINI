@@ -26,33 +26,33 @@ const navItems = [
 const features = [
   {
     icon: Users,
-    title: 'Quan ly khach hang',
-    description: 'Tap trung lead, lich su cham soc va trang thai chuyen doi trong mot timeline ro rang.'
+    title: 'Quản lý khách hàng',
+    description: 'Tập trung lead, lịch sử chăm sóc và trạng thái chuyển đổi trong một timeline rõ ràng.'
   },
   {
     icon: Activity,
     title: 'Pipeline realtime',
-    description: 'Theo doi dieu chuyen deal theo tung stage ngay khi team cap nhat tren he thong.'
+    description: 'Theo dõi dieu chuyen deal theo từng stage ngay khi team cập nhật trên hệ thống.'
   },
   {
     icon: BarChart3,
-    title: 'Bao cao & thong ke',
-    description: 'Dashboard doanh thu, conversion rate va KPI ban hang theo thoi gian thuc.'
+    title: 'Báo cáo & thong ke',
+    description: 'Dashboard doanh thu, conversion rate và KPI bán hàng theo thời gian thực.'
   },
   {
     icon: Lock,
-    title: 'Phan quyen user',
-    description: 'Role-based access cho Admin, Sales va tung bo phan voi session control an toan.'
+    title: 'Phân quyền user',
+    description: 'Role-based access cho Admin, Sales và từng bộ phận với session control an toàn.'
   },
   {
     icon: Cable,
-    title: 'Tich hop API',
-    description: 'Ket noi he thong ngoai qua API endpoint de dong bo du lieu nhanh va on dinh.'
+    title: 'Tích hợp API',
+    description: 'Kết nối hệ thống ngoài qua API endpoint để đồng bộ dữ liệu nhanh và ổn định.'
   },
   {
     icon: Bot,
     title: 'Automation',
-    description: 'Tu dong hoa nhac viec, cap nhat trang thai va trigger thong bao cho team phu trach.'
+    description: 'Tự động hóa nhắc việc, cập nhật trạng thái và trigger thông báo cho team phụ trách.'
   }
 ];
 
@@ -61,27 +61,27 @@ const pricingPlans = [
     name: 'Free',
     price: '0',
     period: '/thang',
-    description: 'Danh cho nhom nho muon bat dau nhanh',
-    features: ['Toi da 3 thanh vien', '500 contacts', 'Dashboard co ban'],
-    cta: 'Dung thu mien phi',
+    description: 'Dành cho nhóm nhỏ muốn bắt đầu nhanh',
+    features: ['Tối đa 3 thành viên', '500 contacts', 'Dashboard cơ bản'],
+    cta: 'Dùng thử miễn phí',
     highlight: false
   },
   {
     name: 'Pro',
     price: '399K',
     period: '/thang',
-    description: 'Toi uu cho team sales dang tang truong',
-    features: ['Khong gioi han user', 'Automation nang cao', 'Bao cao chi tiet + API'],
-    cta: 'Bat dau voi Pro',
+    description: 'Tối ưu cho team sales đang tăng trưởng',
+    features: ['Không giới hạn user', 'Automation nâng cao', 'Báo cáo chi tiet + API'],
+    cta: 'Bắt đầu với Pro',
     highlight: true
   },
   {
     name: 'Enterprise',
     price: 'Lien he',
     period: '',
-    description: 'Giai phap cho doanh nghiep quy mo lon',
-    features: ['SSO + RBAC tuy bien', 'Dedicated support', 'SLA 99.9% uptime'],
-    cta: 'Nhan bao gia',
+    description: 'Giải pháp cho doanh nghiệp quy mô lớn',
+    features: ['SSO + RBAC tùy biến', 'Dedicated support', 'SLA 99.9% uptime'],
+    cta: 'Nhận báo giá',
     highlight: false
   }
 ];
@@ -89,21 +89,21 @@ const pricingPlans = [
 const testimonials = [
   {
     quote:
-      'CRM Mini giup team toi rut ngan hon 30% thoi gian follow-up khach hang. UI de dung va phan tich rat ro rang.',
+      'CRM Mini giup team toi rút ngắn hon 30% thời gian follow-up khach hang. UI dễ dùng va phân tích rất rõ ràng.',
     name: 'Minh Chau',
     role: 'Head of Sales, Nova Labs',
     avatar: 'https://i.pravatar.cc/80?img=47'
   },
   {
     quote:
-      'Truoc day chung toi dung 3 cong cu roi rac, gio tat ca tap trung ve mot dashboard duy nhat. Qua tien cho quy trinh.',
+      'Trước đây chúng tôi dùng 3 công cụ rời rạc, giờ tất cả tập trung về một dashboard duy nhất. Quá tiện cho quy trình.',
     name: 'Hoang Nam',
     role: 'Founder, OrbitOps',
     avatar: 'https://i.pravatar.cc/80?img=57'
   },
   {
     quote:
-      'Phan quyen va audit session giup bo phan admin yen tam hon khi mo rong team va onboarding nhan su moi.',
+      'Phân quyền và audit session giúp bộ phận admin yên tâm hơn khi mở rộng team và onboarding nhân sự mới.',
     name: 'Linh Tran',
     role: 'Operations Manager, BlueYard',
     avatar: 'https://i.pravatar.cc/80?img=32'
@@ -119,15 +119,15 @@ const quickStats = [
 const previewHighlights = [
   {
     title: 'Revenue Overview',
-    description: 'Theo doi doanh thu theo thang va bien dong tung giai doan.'
+    description: 'Theo dõi doanh thu theo thang va bien dong tung giai đoạn.'
   },
   {
     title: 'Live Pipeline',
-    description: 'Nhin thay ngay deal nao dang tac, deal nao can day nhanh.'
+    description: 'Nhìn thấy ngay deal nào đang tắc, deal nào cần đẩy nhanh.'
   },
   {
     title: 'Team Activity',
-    description: 'Nhat ky hoat dong theo user de quan ly tien do va chat luong cham soc.'
+    description: 'Nhật ký hoạt động theo user để quản lý tiến độ và chất lượng chăm sóc.'
   }
 ];
 
@@ -174,9 +174,9 @@ export default function Home() {
             </div>
 
             <h1 className="mt-5 max-w-2xl text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-900 sm:text-5xl lg:text-[56px]">
-              Tang toc quy trinh ban hang
+              Tăng tốc quy trình bán hàng
               <span className="mt-1 block bg-gradient-to-r from-cyan-700 via-sky-600 to-blue-700 bg-clip-text text-transparent">
-                va cham soc khach hang
+                và chăm sóc khách hàng
               </span>
             </h1>
 
@@ -189,7 +189,7 @@ export default function Home() {
                 to="/login?mode=register"
                 className="inline-flex h-12 items-center gap-2 rounded-2xl bg-slate-900 px-6 text-sm font-semibold text-white shadow-[0_18px_34px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:bg-slate-800"
               >
-                Bat dau mien phi
+                Bắt đầu miễn phí
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <a
@@ -202,7 +202,7 @@ export default function Home() {
             </div>
 
             <div className="mt-7 flex flex-wrap gap-2.5">
-              {['No credit card required', 'Deploy nhanh trong 1 ngay', 'Mo rong theo quy mo team'].map((item) => (
+              {['No credit card required', 'Deploy nhanh trong 1 ngày', 'Mở rộng theo quy mô team'].map((item) => (
                 <span key={item} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600">
                   <Check className="h-3.5 w-3.5 text-cyan-600" />
                   {item}
@@ -220,9 +220,9 @@ export default function Home() {
               />
               {/* Bottom-left stat card */}
               <div className="absolute -bottom-4 -left-4 rounded-2xl border border-slate-100 bg-white/95 p-3.5 shadow-xl backdrop-blur-md">
-                <p className="text-[11px] font-medium text-slate-500">Doanh thu thang nay</p>
+                <p className="text-[11px] font-medium text-slate-500">Doanh thu tháng này</p>
                 <p className="mt-0.5 text-xl font-bold text-slate-900">3.2B VNĐ</p>
-                <p className="text-xs font-semibold text-emerald-600">↑ 24.1% so thang truoc</p>
+                <p className="text-xs font-semibold text-emerald-600">↑ 24.1% so tháng trước</p>
               </div>
               {/* Top-right stat card */}
               <div className="absolute -right-4 -top-4 rounded-2xl border border-slate-100 bg-white/95 p-3.5 shadow-xl backdrop-blur-md">
@@ -235,7 +235,7 @@ export default function Home() {
         </section>
 
         <section className="mt-20">
-          <p className="text-center text-sm font-medium text-slate-500">Duoc tin dung boi 100+ teams san xuat va startup</p>
+          <p className="text-center text-sm font-medium text-slate-500">Được tin dùng bởi 100+ teams sản xuất và startup</p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-6">
             {[
               { name: 'Nova Labs', bg: 'from-violet-500 to-purple-600', letter: 'N' },
@@ -257,7 +257,7 @@ export default function Home() {
         <section id="features" className="mt-20">
           <div className="max-w-xl">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-700">Features</p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Tat ca nhung gi team sales can trong mot he thong</h2>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Tất cả nhung gi team sales can trong một hệ thống</h2>
           </div>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -302,7 +302,7 @@ export default function Home() {
 
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-700">Dashboard Preview</p>
-            <h3 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Theo doi toan canh he thong CRM trong vai giay</h3>
+            <h3 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Theo dõi toan canh he thong CRM trong vài giây</h3>
             <div className="mt-5 space-y-3">
               {previewHighlights.map((item) => (
                 <article key={item.title} className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
@@ -326,7 +326,7 @@ export default function Home() {
         <section id="pricing" className="mt-20">
           <div className="max-w-lg">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-700">Pricing</p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Goi dich vu phu hop voi tung giai doan tang truong</h2>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Gói dịch vụ phù hợp voi tung giai đoạn tang truong</h2>
           </div>
 
           <div className="mt-8 grid gap-4 lg:grid-cols-3">
@@ -372,7 +372,7 @@ export default function Home() {
         <section className="mt-20">
           <div className="max-w-lg">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-700">Testimonials</p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Khach hang noi gi ve CRM Mini</h2>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Khách hàng noi gi ve CRM Mini</h2>
           </div>
 
           <div className="mt-8 grid gap-4 lg:grid-cols-3">
@@ -400,16 +400,16 @@ export default function Home() {
           <div className="grid items-center gap-6 lg:grid-cols-[1fr_auto]">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-300">Ready to scale</p>
-              <h3 className="mt-2 text-3xl font-bold tracking-tight">San sang nang cap quy trinh ban hang cua ban?</h3>
+              <h3 className="mt-2 text-3xl font-bold tracking-tight">Sẵn sàng nâng cấp quy trình bán hàng của bạn?</h3>
               <p className="mt-2 max-w-2xl text-sm text-slate-300">
-                Khoi tao workspace trong vai phut va dua toan bo team vao mot flow CRM thong nhat, minh bach va de van hanh.
+                Khởi tạo workspace trong vài phút va đưa toàn bộ team vào một flow CRM thống nhất, minh bạch và dễ vận hành.
               </p>
             </div>
             <Link
               to="/login?mode=register"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-white px-6 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
             >
-              Bat dau ngay
+              Bắt đầu ngay
               <CircleDollarSign className="h-4 w-4" />
             </Link>
           </div>

@@ -25,16 +25,16 @@ const LEAD_SOURCE_LABELS = {
   WEBSITE: 'Website',
   FACEBOOK: 'Facebook',
   ZALO: 'Zalo',
-  REFERRAL: 'Gioi thieu',
-  EVENT: 'Su kien',
-  ADS: 'Quang cao',
-  OTHER: 'Khac'
+  REFERRAL: 'Giới thiệu',
+  EVENT: 'Sự kiện',
+  ADS: 'Quảng cáo',
+  OTHER: 'Khác'
 };
 
 const STATUS_CONFIG = {
-  NEW:       { label: 'Khach moi',   bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-100',   dot: 'bg-blue-500'   },
-  CONTACTED: { label: 'Da lien he',  bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-100',  dot: 'bg-amber-500'  },
-  CONVERTED: { label: 'Da chuyen',   bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100', dot: 'bg-emerald-500' },
+  NEW:       { label: 'Khách mới',   bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-100',   dot: 'bg-blue-500'   },
+  CONTACTED: { label: 'Đã liên hệ',  bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-100',  dot: 'bg-amber-500'  },
+  CONVERTED: { label: 'Đã chuyển',   bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100', dot: 'bg-emerald-500' },
 };
 
 const AVATAR_COLORS = [
@@ -92,7 +92,7 @@ function Customers() {
       const result = await getCustomersApi();
       setItems(result);
     } catch (err) {
-      setError(err.response?.data?.message || 'Khong tai duoc danh sach khach hang');
+      setError(err.response?.data?.message || 'Không tải được danh sách khách hàng');
     } finally {
       setLoading(false);
     }
@@ -140,7 +140,7 @@ function Customers() {
       resetForm();
       await loadCustomers();
     } catch (err) {
-      setError(err.response?.data?.message || 'Luu khach hang that bai');
+      setError(err.response?.data?.message || 'Lưu khách hàng thất bại');
     } finally {
       setSaving(false);
     }
@@ -159,7 +159,7 @@ function Customers() {
   };
 
   const onDelete = async (id) => {
-    const confirmed = window.confirm('Ban chac chan muon xoa khach hang nay?');
+    const confirmed = window.confirm('Bạn chắc chắn muốn xóa khách hàng này?');
     if (!confirmed) {
       return;
     }
@@ -168,7 +168,7 @@ function Customers() {
       await deleteCustomerApi(id);
       await loadCustomers();
     } catch (err) {
-      setError(err.response?.data?.message || 'Xoa khach hang that bai');
+      setError(err.response?.data?.message || 'Xóa khách hàng thất bại');
     }
   };
 
@@ -181,8 +181,8 @@ function Customers() {
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Khach hang</h2>
-            <p className="text-xs text-slate-500">Quan ly danh sach va trang thai cham soc</p>
+            <h2 className="text-lg font-bold text-slate-900">Khách hàng</h2>
+            <p className="text-xs text-slate-500">Quản lý danh sách và trạng thái chăm sóc</p>
           </div>
         </div>
 
@@ -192,7 +192,7 @@ function Customers() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Tim ten, email, cong ty..."
+              placeholder="Tìm tên, email, công ty..."
               className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15"
             />
           </div>
@@ -202,9 +202,9 @@ function Customers() {
       {/* Stats */}
       <section className="grid grid-cols-3 gap-3">
         {[
-          { label: 'Tong khach hang', value: totalCustomers, color: 'from-violet-500 to-indigo-600' },
-          { label: 'Dang lien he',    value: contactedCustomers, color: 'from-amber-500 to-orange-500' },
-          { label: 'Da chuyen doi',   value: convertedCustomers, color: 'from-emerald-500 to-teal-600' },
+          { label: 'Tổng khách hàng', value: totalCustomers, color: 'from-violet-500 to-indigo-600' },
+          { label: 'Đang liên hệ',    value: contactedCustomers, color: 'from-amber-500 to-orange-500' },
+          { label: 'Đã chuyển đổi',   value: convertedCustomers, color: 'from-emerald-500 to-teal-600' },
         ].map((item) => (
           <article key={item.label} className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className={`absolute right-3 top-3 h-8 w-8 rounded-lg bg-gradient-to-br ${item.color} opacity-10`} />
@@ -219,15 +219,15 @@ function Customers() {
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-slate-900">
             {editingId
-              ? <><Pencil className="h-4 w-4 text-amber-500" /> Cap nhat khach hang</>
-              : <><CirclePlus className="h-4 w-4 text-blue-600" /> Them khach hang</>}
+              ? <><Pencil className="h-4 w-4 text-amber-500" /> Cập nhật khách hàng</>
+              : <><CirclePlus className="h-4 w-4 text-blue-600" /> Thêm khách hàng</>}
           </h3>
 
           <form className="space-y-3" onSubmit={onSubmit}>
-            {[{ name: 'name', label: 'Ho ten', placeholder: 'Nguyen Van A', type: 'text' },
+            {[{ name: 'name', label: 'Họ tên', placeholder: 'Nguyen Van A', type: 'text' },
               { name: 'email', label: 'Email', placeholder: 'email@congty.com', type: 'email' },
-              { name: 'phone', label: 'So dien thoai', placeholder: '0901 234 567', type: 'text' },
-              { name: 'company', label: 'Cong ty', placeholder: 'Ten cong ty', type: 'text' },
+              { name: 'phone', label: 'Số điện thoại', placeholder: '0901 234 567', type: 'text' },
+              { name: 'company', label: 'Công ty', placeholder: 'Tên công ty', type: 'text' },
             ].map((field) => (
               <div key={field.name} className="space-y-1.5">
                 <label className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">{field.label}</label>
@@ -244,7 +244,7 @@ function Customers() {
             ))}
 
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Trang thai</label>
+              <label className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Trạng thái</label>
               <div className="grid grid-cols-3 gap-1.5">
                 {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
                   <button
@@ -265,7 +265,7 @@ function Customers() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Nguon lead</label>
+              <label className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Nguồn lead</label>
               <select
                 name="leadSource"
                 value={form.leadSource}
@@ -288,7 +288,7 @@ function Customers() {
                 disabled={saving}
                 className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-slate-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
               >
-                {saving ? 'Dang luu...' : editingId ? 'Cap nhat' : 'Them moi'}
+                {saving ? 'Đang lưu...' : editingId ? 'Cập nhật' : 'Thêm mới'}
               </button>
               {editingId && (
                 <button
@@ -296,7 +296,7 @@ function Customers() {
                   onClick={resetForm}
                   className="inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
                 >
-                  <X className="h-4 w-4" /> Huy
+                  <X className="h-4 w-4" /> Hủy
                 </button>
               )}
             </div>
@@ -306,7 +306,7 @@ function Customers() {
         {/* Table Panel */}
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-            <h3 className="text-base font-bold text-slate-900">Danh sach khach hang</h3>
+            <h3 className="text-base font-bold text-slate-900">Danh sách khách hàng</h3>
             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{filtered.length} khach</span>
           </div>
 
@@ -319,18 +319,18 @@ function Customers() {
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/70 text-left">
-                    <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Khach hang</th>
-                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Cong ty</th>
-                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Trang thai</th>
-                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Nguon</th>
-                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Phu trach</th>
-                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Hanh dong</th>
+                    <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Khách hàng</th>
+                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Công ty</th>
+                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Trạng thái</th>
+                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Nguồn</th>
+                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Phụ trách</th>
+                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Hành động</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filtered.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-5 py-10 text-center text-sm text-slate-400">Khong tim thay khach hang nao</td>
+                      <td colSpan={6} className="px-5 py-10 text-center text-sm text-slate-400">Không tìm thấy khách hàng nào</td>
                     </tr>
                   ) : filtered.map((item) => (
                     <tr key={item.id} className="transition hover:bg-slate-50/70">
@@ -360,7 +360,7 @@ function Customers() {
                       </td>
                       <td className="px-4 py-3.5">
                         <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">
-                          {LEAD_SOURCE_LABELS[item.leadSource] || item.leadSource || 'Khac'}
+                          {LEAD_SOURCE_LABELS[item.leadSource] || item.leadSource || 'Khác'}
                         </span>
                       </td>
                       <td className="px-4 py-3.5">
@@ -373,7 +373,7 @@ function Customers() {
                             onClick={() => onEdit(item)}
                             className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
                           >
-                            <Pencil className="h-3.5 w-3.5" /> Sua
+                            <Pencil className="h-3.5 w-3.5" /> Sửa
                           </button>
                           {(user?.role === 'ADMIN' || item.assignedTo === user?.id) && (
                             <button
@@ -381,7 +381,7 @@ function Customers() {
                               onClick={() => onDelete(item.id)}
                               className="inline-flex items-center gap-1 rounded-lg border border-rose-100 bg-rose-50 px-2.5 py-1.5 text-xs font-medium text-rose-600 transition hover:bg-rose-100"
                             >
-                              <Trash2 className="h-3.5 w-3.5" /> Xoa
+                              <Trash2 className="h-3.5 w-3.5" /> Xóa
                             </button>
                           )}
                         </div>

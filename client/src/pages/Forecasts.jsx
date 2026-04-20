@@ -59,7 +59,7 @@ function Forecasts() {
       });
       setDashboard(data);
     } catch (e) {
-      toast.error(e.response?.data?.message || 'Khong tai duoc forecast dashboard');
+      toast.error(e.response?.data?.message || 'Không tải được forecast dashboard');
     } finally {
       setLoading(false);
     }
@@ -113,7 +113,7 @@ function Forecasts() {
         toast.success('Cap nhat target thanh cong');
       } else {
         await createSalesTargetApi(payload);
-        toast.success('Tao target thanh cong');
+        toast.success('Tạo target thanh cong');
       }
 
       resetForm();
@@ -132,7 +132,7 @@ function Forecasts() {
       toast.success('Da xoa sales target');
       await loadDashboard();
     } catch (e) {
-      toast.error(e.response?.data?.message || 'Xoa sales target that bai');
+      toast.error(e.response?.data?.message || 'Xóa sales target that bai');
     }
   };
 
@@ -162,7 +162,7 @@ function Forecasts() {
               onChange={(e) => setOwnerFilter(e.target.value)}
               className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
             >
-              <option value="">Tat ca owner</option>
+              <option value="">Tất cả owner</option>
               {owners.map((owner) => (
                 <option key={owner.id} value={owner.id}>{owner.name}</option>
               ))}
@@ -182,7 +182,7 @@ function Forecasts() {
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[380px_1fr]">
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-slate-900">
-            {editingId ? <><Pencil className="h-4 w-4 text-amber-500" /> Cap nhat target</> : <><CirclePlus className="h-4 w-4 text-blue-600" /> Tao target moi</>}
+            {editingId ? <><Pencil className="h-4 w-4 text-amber-500" /> Cap nhat target</> : <><CirclePlus className="h-4 w-4 text-blue-600" /> Tạo target moi</>}
           </h3>
 
           <form className="space-y-3" onSubmit={onSubmit}>
@@ -198,11 +198,11 @@ function Forecasts() {
 
             <div className="flex items-center gap-2">
               <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">
-                <Target className="h-4 w-4" /> {editingId ? 'Luu thay doi' : 'Tao target'}
+                <Target className="h-4 w-4" /> {editingId ? 'Luu thay doi' : 'Tạo target'}
               </button>
               {editingId && (
                 <button type="button" onClick={resetForm} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600">
-                  Huy
+                  Hủy
                 </button>
               )}
             </div>
@@ -214,7 +214,7 @@ function Forecasts() {
               <span className="text-xs text-slate-500">{targets.length} muc</span>
             </div>
             {targets.length === 0 ? (
-              <p className="text-sm text-slate-400">Chua co target nao</p>
+              <p className="text-sm text-slate-400">Chưa có target nao</p>
             ) : (
               targets.map((target) => (
                 <article key={target.id} className="rounded-xl border border-slate-100 p-3">
@@ -245,7 +245,7 @@ function Forecasts() {
           {loading ? (
             <div className="p-8 text-center text-sm text-slate-400">Dang tai...</div>
           ) : forecasts.length === 0 ? (
-            <div className="p-8 text-center text-sm text-slate-400">Chua co du lieu forecast</div>
+            <div className="p-8 text-center text-sm text-slate-400">Chưa có dữ liệu forecast</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">

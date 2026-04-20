@@ -7,10 +7,10 @@ const SOURCE_CONFIG = {
   WEBSITE: { label: 'Website', icon: Globe, color: 'from-blue-500 to-cyan-500' },
   FACEBOOK: { label: 'Facebook', icon: Users2, color: 'from-indigo-500 to-blue-600' },
   ZALO: { label: 'Zalo', icon: Smartphone, color: 'from-sky-500 to-blue-500' },
-  REFERRAL: { label: 'Gioi thieu', icon: Share2, color: 'from-emerald-500 to-teal-600' },
-  EVENT: { label: 'Su kien', icon: BarChart3, color: 'from-violet-500 to-purple-600' },
-  ADS: { label: 'Quang cao', icon: Megaphone, color: 'from-amber-500 to-orange-500' },
-  OTHER: { label: 'Khac', icon: BarChart3, color: 'from-slate-500 to-slate-600' }
+  REFERRAL: { label: 'Giới thiệu', icon: Share2, color: 'from-emerald-500 to-teal-600' },
+  EVENT: { label: 'Sự kiện', icon: BarChart3, color: 'from-violet-500 to-purple-600' },
+  ADS: { label: 'Quảng cáo', icon: Megaphone, color: 'from-amber-500 to-orange-500' },
+  OTHER: { label: 'Khác', icon: BarChart3, color: 'from-slate-500 to-slate-600' }
 };
 
 function LeadSources() {
@@ -25,7 +25,7 @@ function LeadSources() {
       setSummary(data.summary || { totalLeads: 0, totalConverted: 0, conversionRate: 0 });
       setBreakdown(data.breakdown || []);
     } catch (e) {
-      toast.error(e.response?.data?.message || 'Khong tai duoc thong ke nguon lead');
+      toast.error(e.response?.data?.message || 'Không tải được thong ke nguon lead');
     } finally {
       setLoading(false);
     }
@@ -42,14 +42,14 @@ function LeadSources() {
       <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
         <div>
           <h2 className="text-lg font-bold text-slate-900">Lead Source Analytics</h2>
-          <p className="text-xs text-slate-500">Theo doi hieu qua cac kenh tao khach hang</p>
+          <p className="text-xs text-slate-500">Theo dõi hiệu quả các kênh tạo khách hàng</p>
         </div>
       </section>
 
       <section className="grid grid-cols-3 gap-3">
         <article className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Tong leads</p><p className="text-2xl font-bold text-slate-900">{summary.totalLeads}</p></article>
-        <article className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Da chuyen doi</p><p className="text-2xl font-bold text-emerald-700">{summary.totalConverted}</p></article>
-        <article className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Ty le chuyen doi</p><p className="text-2xl font-bold text-indigo-700">{summary.conversionRate}%</p></article>
+        <article className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Đã chuyển đổi</p><p className="text-2xl font-bold text-emerald-700">{summary.totalConverted}</p></article>
+        <article className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Ty le chuyển đổi</p><p className="text-2xl font-bold text-indigo-700">{summary.conversionRate}%</p></article>
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -71,7 +71,7 @@ function LeadSources() {
                       </span>
                       <div>
                         <p className="text-sm font-semibold text-slate-800">{cfg.label}</p>
-                        <p className="text-xs text-slate-500">{item.converted}/{item.total} chuyen doi ({item.conversionRate}%)</p>
+                        <p className="text-xs text-slate-500">{item.converted}/{item.total} chuyển đổi ({item.conversionRate}%)</p>
                       </div>
                     </div>
                     <p className="text-sm font-bold text-slate-700">{item.total}</p>

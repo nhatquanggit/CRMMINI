@@ -121,7 +121,7 @@ export default function ChatUI() {
         <div className="flex-1 overflow-y-auto">
           {rooms.length === 0 && (
             <div className="px-4 py-10 text-center text-sm text-slate-400">
-              Chua co cuoc tro chuyen nao.
+              Chưa có cuoc tro chuyen nao.
             </div>
           )}
           {rooms.map((room) => {
@@ -174,7 +174,7 @@ export default function ChatUI() {
 
             <div className="flex-1 overflow-y-auto bg-slate-50 px-5 py-4 space-y-3">
               {messages.length === 0 && (
-                <p className="text-center text-sm text-slate-400">Chua co tin nhan nao.</p>
+                <p className="text-center text-sm text-slate-400">Chưa có tin nhan nao.</p>
               )}
               {messages.map((msg) => {
                 const isAdmin = msg.from === 'admin';
@@ -182,7 +182,7 @@ export default function ChatUI() {
                   <div key={msg.id} className={`flex ${isAdmin ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[70%] flex flex-col gap-0.5 ${isAdmin ? 'items-end' : 'items-start'}`}>
                       {!isAdmin && (
-                        <p className="px-1 text-[11px] font-medium text-slate-500">{msg.senderName || 'Nguoi dung'}</p>
+                        <p className="px-1 text-[11px] font-medium text-slate-500">{msg.senderName || 'Người dùng'}</p>
                       )}
                       <div
                         className={`rounded-2xl px-4 py-2 text-sm leading-6 ${

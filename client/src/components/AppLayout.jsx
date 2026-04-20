@@ -34,23 +34,23 @@ function AppLayout() {
         search: 'Search deals, customers...'
       }
     : {
-        dashboard: 'Tong quan',
-        customers: 'Khach hang',
+        dashboard: 'Tổng quan',
+        customers: 'Khách hàng',
         deals: 'Deals',
-        quotes: 'Bao gia',
-        products: 'San pham',
-        invoices: 'Hoa don',
-        leadSources: 'Nguon lead',
-        segments: 'Phan khuc',
-        supportTickets: 'Ho tro',
-        forecasts: 'Du bao',
-        calendar: 'Lich',
-        reports: 'Bao cao',
-        users: 'Nguoi dung',
+        quotes: 'Báo giá',
+        products: 'Sản phẩm',
+        invoices: 'Hóa đơn',
+        leadSources: 'Nguồn lead',
+        segments: 'Phân khúc',
+        supportTickets: 'Hỗ trợ',
+        forecasts: 'Dự báo',
+        calendar: 'Lịch',
+        reports: 'Báo cáo',
+        users: 'Người dùng',
         importExport: 'Import / Export',
-        settings: 'Cai dat',
-        logout: 'Dang xuat',
-        search: 'Tim deal, khach hang...'
+        settings: 'Cài đặt',
+        logout: 'Đăng xuất',
+        search: 'Tìm deal, khách hàng...'
       };
 
   const onLogout = () => {

@@ -21,9 +21,9 @@ const initialRegister = { name: '', email: '', password: '', role: 'SALES' };
 const initialLogin = { email: '', password: '' };
 
 const brandStats = [
-  { icon: Users, label: '1,000+ Teams', sub: 'dang su dung' },
-  { icon: BarChart3, label: '5,000+ Deals', sub: 'duoc quan ly' },
-  { icon: ShieldCheck, label: '99.9% Uptime', sub: 'dam bao' },
+  { icon: Users, label: '1,000+ Teams', sub: 'đang sử dụng' },
+  { icon: BarChart3, label: '5,000+ Deals', sub: 'được quản lý' },
+  { icon: ShieldCheck, label: '99.9% Uptime', sub: 'đảm bảo' },
 ];
 
 function InputField({ label, icon: Icon, type = 'text', name, value, onChange, placeholder, required, rightSlot }) {
@@ -83,7 +83,7 @@ function Login() {
       setAuth(result);
       navigate(targetPath, { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Dang nhap that bai. Kiem tra lai email va mat khau.');
+      setError(err.response?.data?.message || 'Đăng nhập that bai. Kiểm tra lại email và mật khẩu.');
     } finally {
       setLoading(false);
     }
@@ -98,7 +98,7 @@ function Login() {
       setAuth(result);
       navigate('/app/dashboard', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Dang ky that bai. Vui long thu lai.');
+      setError(err.response?.data?.message || 'Đăng ký that bai. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -143,10 +143,10 @@ function Login() {
               Modern Sales Platform
             </p>
             <h2 className="max-w-sm text-3xl font-bold leading-snug tracking-tight text-white xl:text-4xl">
-              Quan ly toan bo quy trinh ban hang trong mot he thong
+              Quản lý toan bo quy trinh ban hang trong một hệ thống
             </h2>
             <p className="mt-4 max-w-sm text-sm leading-7 text-slate-300/90">
-              Tu lead generation den deal closing — CRM Mini giup team ban hang hoat dong thong minh hon, nhanh hon.
+              Từ lead generation đến deal closing — CRM Mini giúp team bán hàng hoạt động thông minh hơn, nhanh hơn.
             </p>
 
             {/* Stats row */}
@@ -168,7 +168,7 @@ function Login() {
           {/* Testimonial quote */}
           <div className="rounded-2xl border border-white/10 bg-white/8 p-5 backdrop-blur-sm">
             <p className="text-sm leading-6 text-slate-300">
-              "CRM Mini giup chung toi tang win rate len 40% chi sau 2 thang trien khai. Dashboard truc quan, de van hanh hon bao gio het."
+              "CRM Mini giúp chúng tôi tăng win rate len 40% chỉ sau 2 tháng triển khai. Dashboard trực quan, dễ vận hành hơn bao giờ hết."
             </p>
             <div className="mt-4 flex items-center gap-3">
               <img
@@ -204,7 +204,7 @@ function Login() {
             className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 transition hover:text-slate-900"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Ve trang chu
+            Về trang chủ
           </Link>
         </div>
 
@@ -215,12 +215,12 @@ function Login() {
             {/* Heading */}
             <div className="mb-8">
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                {mode === 'login' ? 'Chao mung tro lai 👋' : 'Tao tai khoan moi'}
+                {mode === 'login' ? 'Chào mừng trở lại 👋' : 'Tạo tài khoản mới'}
               </h1>
               <p className="mt-1.5 text-sm text-slate-500">
                 {mode === 'login'
-                  ? 'Dang nhap de tiep tuc vao workspace cua ban'
-                  : 'Bat dau mien phi, khong can the tin dung'}
+                  ? 'Đăng nhập để tiếp tục vao workspace của bạn'
+                  : 'Bắt đầu miễn phí, không cần thẻ tín dụng'}
               </p>
             </div>
 
@@ -237,7 +237,7 @@ function Login() {
                       : 'text-slate-500 hover:text-slate-700'
                   }`}
                 >
-                  {m === 'login' ? 'Dang nhap' : 'Dang ky'}
+                  {m === 'login' ? 'Đăng nhập' : 'Đăng ký'}
                 </button>
               ))}
             </div>
@@ -264,7 +264,7 @@ function Login() {
                   required
                 />
                 <InputField
-                  label="Mat khau"
+                  label="Mật khẩu"
                   icon={KeyRound}
                   type={showPass ? 'text' : 'password'}
                   name="password"
@@ -280,9 +280,9 @@ function Login() {
                   className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-slate-900 text-sm font-semibold text-white shadow-[0_12px_28px_-14px_rgba(15,23,42,0.6)] transition hover:-translate-y-0.5 hover:bg-slate-800 disabled:opacity-60"
                 >
                   {loading ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> Dang xu ly...</>
+                    <><Loader2 className="h-4 w-4 animate-spin" /> Đang xử lý...</>
                   ) : (
-                    'Dang nhap'
+                    'Đăng nhập'
                   )}
                 </button>
               </form>
@@ -290,7 +290,7 @@ function Login() {
               /* Register Form */
               <form className="space-y-4" onSubmit={submitRegister}>
                 <InputField
-                  label="Ho ten"
+                  label="Họ tên"
                   icon={User}
                   name="name"
                   value={registerForm.name}
@@ -309,13 +309,13 @@ function Login() {
                   required
                 />
                 <InputField
-                  label="Mat khau"
+                  label="Mật khẩu"
                   icon={KeyRound}
                   type={showPass ? 'text' : 'password'}
                   name="password"
                   value={registerForm.password}
                   onChange={onChange(setRegisterForm)}
-                  placeholder="Toi thieu 8 ky tu"
+                  placeholder="Tối thiểu 8 ký tự"
                   required
                   rightSlot={eyeButton}
                 />
@@ -323,7 +323,7 @@ function Login() {
                 {/* Role selector */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                    Vai tro
+                    Vai trò
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     {['SALES', 'ADMIN'].map((r) => (
@@ -354,9 +354,9 @@ function Login() {
                   className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-slate-900 text-sm font-semibold text-white shadow-[0_12px_28px_-14px_rgba(15,23,42,0.6)] transition hover:-translate-y-0.5 hover:bg-slate-800 disabled:opacity-60"
                 >
                   {loading ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> Dang xu ly...</>
+                    <><Loader2 className="h-4 w-4 animate-spin" /> Đang xử lý...</>
                   ) : (
-                    'Tao tai khoan'
+                    'Tạo tai khoan'
                   )}
                 </button>
               </form>
@@ -364,13 +364,13 @@ function Login() {
 
             {/* Switch mode hint */}
             <p className="mt-6 text-center text-sm text-slate-500">
-              {mode === 'login' ? 'Chua co tai khoan? ' : 'Da co tai khoan? '}
+              {mode === 'login' ? 'Chưa có tài khoản? ' : 'Đã có tài khoản? '}
               <button
                 type="button"
                 onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); }}
                 className="font-semibold text-cyan-700 underline-offset-2 transition hover:underline"
               >
-                {mode === 'login' ? 'Dang ky mien phi' : 'Dang nhap ngay'}
+                {mode === 'login' ? 'Đăng ký mien phi' : 'Đăng nhập ngay'}
               </button>
             </p>
 
@@ -381,7 +381,7 @@ function Login() {
                 className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-700"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
-                Ve trang chu
+                Về trang chủ
               </Link>
             </div>
           </div>

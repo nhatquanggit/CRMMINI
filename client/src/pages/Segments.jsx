@@ -75,7 +75,7 @@ function Segments() {
         setSelectedId(rows[0].id);
       }
     } catch (e) {
-      toast.error(e.response?.data?.message || 'Khong tai duoc danh sach segment');
+      toast.error(e.response?.data?.message || 'Không tải được danh sach segment');
     } finally {
       setLoading(false);
     }
@@ -92,7 +92,7 @@ function Segments() {
       const data = await getSegmentMembersApi(id);
       setMembers(data.members || []);
     } catch (e) {
-      toast.error(e.response?.data?.message || 'Khong tai duoc members cua segment');
+      toast.error(e.response?.data?.message || 'Không tải được members cua segment');
       setMembers([]);
     } finally {
       setMemberLoading(false);
@@ -160,7 +160,7 @@ function Segments() {
         toast.success('Cap nhat segment thanh cong');
       } else {
         await createSegmentApi(payload);
-        toast.success('Tao segment thanh cong');
+        toast.success('Tạo segment thanh cong');
       }
 
       resetForm();
@@ -189,7 +189,7 @@ function Segments() {
         setSelectedId(next[0]?.id || null);
       }
     } catch (e) {
-      toast.error(e.response?.data?.message || 'Xoa segment that bai');
+      toast.error(e.response?.data?.message || 'Xóa segment that bai');
     }
   };
 
@@ -207,7 +207,7 @@ function Segments() {
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900">Customer Segments</h2>
-            <p className="text-xs text-slate-500">Phan nhom khach hang theo dieu kien hanh vi va gia tri</p>
+            <p className="text-xs text-slate-500">Phân nhóm khách hàng theo điều kiện hành vi và giá trị</p>
           </div>
         </div>
 
@@ -232,7 +232,7 @@ function Segments() {
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[380px_360px_1fr]">
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-slate-900">
-            {editingId ? <><Pencil className="h-4 w-4 text-amber-500" /> Cap nhat segment</> : <><CirclePlus className="h-4 w-4 text-blue-600" /> Tao segment</>}
+            {editingId ? <><Pencil className="h-4 w-4 text-amber-500" /> Cap nhat segment</> : <><CirclePlus className="h-4 w-4 text-blue-600" /> Tạo segment</>}
           </h3>
 
           {!canManage && (
@@ -274,11 +274,11 @@ function Segments() {
 
             <div className="flex items-center gap-2">
               <button type="submit" disabled={saving || !canManage} className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">
-                {editingId ? 'Luu thay doi' : 'Tao segment'}
+                {editingId ? 'Luu thay doi' : 'Tạo segment'}
               </button>
               {editingId && (
                 <button type="button" onClick={resetForm} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600">
-                  Huy
+                  Hủy
                 </button>
               )}
             </div>
@@ -296,7 +296,7 @@ function Segments() {
           ) : filtered.length === 0 ? (
             <div className="p-8 text-center text-slate-400">
               <Filter className="mx-auto mb-2 h-8 w-8" />
-              <p className="text-sm">Chua co segment nao</p>
+              <p className="text-sm">Chưa có segment nao</p>
             </div>
           ) : (
             <div className="divide-y divide-slate-100">
@@ -366,11 +366,11 @@ function Segments() {
           </div>
 
           {!selectedSegment ? (
-            <div className="p-8 text-center text-sm text-slate-400">Chon 1 segment de xem danh sach khach hang</div>
+            <div className="p-8 text-center text-sm text-slate-400">Chọn 1 segment để xem danh sách khach hang</div>
           ) : memberLoading ? (
             <div className="space-y-2 p-4">{[1, 2, 3, 4].map((i) => <div key={i} className="h-14 animate-pulse rounded-xl bg-slate-100" />)}</div>
           ) : members.length === 0 ? (
-            <div className="p-8 text-center text-sm text-slate-400">Khong co khach hang nao phu hop</div>
+            <div className="p-8 text-center text-sm text-slate-400">Không có khách hàng nào phù hợp</div>
           ) : (
             <div className="divide-y divide-slate-100">
               {members.map((m) => (

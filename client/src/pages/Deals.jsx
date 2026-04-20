@@ -15,11 +15,11 @@ import { createDealApi, getDealsApi, updateDealApi } from '../api/dealApi';
 import { getCustomersApi } from '../api/customerApi';
 
 const STAGES = [
-  { key: 'LEAD',        label: 'Khach hang moi',       tone: 'bg-sky-500',     chip: 'bg-sky-50 text-sky-700 border-sky-200',       icon: Sprout },
-  { key: 'CONTACTED',   label: 'Da tiem can',          tone: 'bg-cyan-500',    chip: 'bg-cyan-50 text-cyan-700 border-cyan-200',     icon: PhoneCall },
-  { key: 'NEGOTIATION', label: 'Dang dam phan',        tone: 'bg-violet-500',  chip: 'bg-violet-50 text-violet-700 border-violet-200', icon: FilePenLine },
-  { key: 'WON',         label: 'Da chot - Thanh cong', tone: 'bg-emerald-500', chip: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: BadgeCheck },
-  { key: 'LOST',        label: 'That bai',             tone: 'bg-rose-500',    chip: 'bg-rose-50 text-rose-700 border-rose-200',     icon: CircleX },
+  { key: 'LEAD',        label: 'Khách hàng mới',       tone: 'bg-sky-500',     chip: 'bg-sky-50 text-sky-700 border-sky-200',       icon: Sprout },
+  { key: 'CONTACTED',   label: 'Đã tiếp cận',          tone: 'bg-cyan-500',    chip: 'bg-cyan-50 text-cyan-700 border-cyan-200',     icon: PhoneCall },
+  { key: 'NEGOTIATION', label: 'Đang đàm phán',        tone: 'bg-violet-500',  chip: 'bg-violet-50 text-violet-700 border-violet-200', icon: FilePenLine },
+  { key: 'WON',         label: 'Đã chốt - Thành công', tone: 'bg-emerald-500', chip: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: BadgeCheck },
+  { key: 'LOST',        label: 'Thất bại',             tone: 'bg-rose-500',    chip: 'bg-rose-50 text-rose-700 border-rose-200',     icon: CircleX },
 ];
 
 const emptyForm = {
@@ -54,7 +54,7 @@ function Deals() {
       setDeals(dealData);
       setCustomers(customerData);
     } catch (err) {
-      setError(err.response?.data?.message || 'Khong tai duoc du lieu deals');
+      setError(err.response?.data?.message || 'Không tải được dữ liệu deals');
     } finally {
       setLoading(false);
     }
@@ -124,7 +124,7 @@ function Deals() {
       setForm(emptyForm);
       await loadData();
     } catch (err) {
-      setError(err.response?.data?.message || 'Tao deal that bai');
+      setError(err.response?.data?.message || 'Tạo deal thất bại');
     } finally {
       setSaving(false);
     }
@@ -145,7 +145,7 @@ function Deals() {
       await updateDealApi(draggingId, { stage });
       setDeals((prev) => prev.map((item) => (item.id === draggingId ? { ...item, stage } : item)));
     } catch (err) {
-      setError(err.response?.data?.message || 'Khong cap nhat duoc stage');
+      setError(err.response?.data?.message || 'Không cập nhật được stage');
     } finally {
       setDraggingId(null);
     }
@@ -161,7 +161,7 @@ function Deals() {
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900">Pipeline Deals</h2>
-            <p className="text-xs text-slate-500">Quan ly giao dich theo tung giai doan</p>
+            <p className="text-xs text-slate-500">Quản lý giao dịch theo từng giai đoạn</p>
           </div>
         </div>
         <div className="flex w-full items-center gap-2 lg:w-auto">
@@ -170,7 +170,7 @@ function Deals() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Tim deal, khach hang, owner..."
+              placeholder="Tìm deal, khách hàng, owner..."
               className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15"
             />
           </div>
@@ -180,20 +180,20 @@ function Deals() {
       {/* Create form */}
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-slate-900">
-          <CirclePlus className="h-4 w-4 text-blue-600" /> Tao giao dich moi
+          <CirclePlus className="h-4 w-4 text-blue-600" /> Tạo giao dịch mới
         </h3>
         <form className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto]" onSubmit={onCreateDeal}>
           <input
             value={form.title}
             onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-            placeholder="Tieu de giao dich"
+            placeholder="Tiêu đề giao dịch"
             className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15"
             required
           />
           <input
             value={form.value}
             onChange={(e) => setForm((p) => ({ ...p, value: e.target.value }))}
-            placeholder="Gia tri (VND)"
+            placeholder="Giá trị (VND)"
             type="number"
             className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15"
             required
@@ -204,7 +204,7 @@ function Deals() {
             className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15"
             required
           >
-            <option value="">Chon khach hang</option>
+            <option value="">Chọn khách hàng</option>
             {customers.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
@@ -222,7 +222,7 @@ function Deals() {
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
           >
             <CirclePlus className="h-4 w-4" />
-            {saving ? 'Dang tao...' : 'Tao'}
+            {saving ? 'Đang tạo...' : 'Tạo'}
           </button>
         </form>
       </section>
@@ -234,10 +234,10 @@ function Deals() {
       {/* Pipeline stats */}
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: 'Tong gia tri', value: money.format(boardTotal), color: 'text-blue-700', bg: 'from-blue-500 to-indigo-600' },
-          { label: 'So giao dich', value: totalDeals, color: 'text-violet-700', bg: 'from-violet-500 to-purple-600' },
-          { label: 'Da chot (WON)', value: (groupedDeals['WON'] || []).length, color: 'text-emerald-700', bg: 'from-emerald-500 to-teal-600' },
-          { label: 'That bai (LOST)', value: (groupedDeals['LOST'] || []).length, color: 'text-rose-700', bg: 'from-rose-500 to-pink-600' },
+          { label: 'Tổng giá trị', value: money.format(boardTotal), color: 'text-blue-700', bg: 'from-blue-500 to-indigo-600' },
+          { label: 'Số giao dịch', value: totalDeals, color: 'text-violet-700', bg: 'from-violet-500 to-purple-600' },
+          { label: 'Đã chốt (WON)', value: (groupedDeals['WON'] || []).length, color: 'text-emerald-700', bg: 'from-emerald-500 to-teal-600' },
+          { label: 'Thất bại (LOST)', value: (groupedDeals['LOST'] || []).length, color: 'text-rose-700', bg: 'from-rose-500 to-pink-600' },
         ].map((item) => (
           <article key={item.label} className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className={`absolute right-0 top-0 h-full w-1 bg-gradient-to-b ${item.bg}`} />
@@ -314,7 +314,7 @@ function Deals() {
 
                   {(!filteredDeals[stage.key] || !filteredDeals[stage.key].length) && (
                     <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-8 text-center">
-                      <p className="text-xs text-slate-400">Chua co giao dich</p>
+                      <p className="text-xs text-slate-400">Chưa có giao dịch</p>
                     </div>
                   )}
                 </div>

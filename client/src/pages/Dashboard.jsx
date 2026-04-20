@@ -27,11 +27,11 @@ const money = new Intl.NumberFormat('vi-VN', {
 });
 
 const STAGE_CONFIG = [
-  { key: 'LEAD',        label: 'Khach moi',   icon: Sprout,       color: 'bg-sky-500',     text: 'text-sky-600',     light: 'bg-sky-50'     },
-  { key: 'CONTACTED',   label: 'Da lien he',  icon: PhoneCall,    color: 'bg-cyan-500',    text: 'text-cyan-600',    light: 'bg-cyan-50'    },
-  { key: 'NEGOTIATION', label: 'Dam phan',    icon: Handshake,    color: 'bg-violet-500',  text: 'text-violet-600',  light: 'bg-violet-50'  },
-  { key: 'WON',         label: 'Thanh cong',  icon: CheckCircle2, color: 'bg-emerald-500', text: 'text-emerald-600', light: 'bg-emerald-50' },
-  { key: 'LOST',        label: 'That bai',    icon: XCircle,      color: 'bg-rose-500',    text: 'text-rose-600',    light: 'bg-rose-50'    },
+  { key: 'LEAD',        label: 'Khách mới',   icon: Sprout,       color: 'bg-sky-500',     text: 'text-sky-600',     light: 'bg-sky-50'     },
+  { key: 'CONTACTED',   label: 'Đã liên hệ',  icon: PhoneCall,    color: 'bg-cyan-500',    text: 'text-cyan-600',    light: 'bg-cyan-50'    },
+  { key: 'NEGOTIATION', label: 'Đàm phán',    icon: Handshake,    color: 'bg-violet-500',  text: 'text-violet-600',  light: 'bg-violet-50'  },
+  { key: 'WON',         label: 'Thành công',  icon: CheckCircle2, color: 'bg-emerald-500', text: 'text-emerald-600', light: 'bg-emerald-50' },
+  { key: 'LOST',        label: 'Thất bại',    icon: XCircle,      color: 'bg-rose-500',    text: 'text-rose-600',    light: 'bg-rose-50'    },
 ];
 
 const safePercent = (current, previous) => {
@@ -54,8 +54,8 @@ const activityIconByType = (type) => {
 const ActivityEmptyState = () => (
   <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-10 text-center">
     <Activity className="h-8 w-8 text-gray-400" />
-    <p className="mt-3 text-sm font-semibold text-gray-700">Chua co du lieu</p>
-    <p className="mt-1 text-sm text-gray-500">Khi co hoat dong moi, ban se thay lich su tai day.</p>
+    <p className="mt-3 text-sm font-semibold text-gray-700">Chưa có dữ liệu</p>
+    <p className="mt-1 text-sm text-gray-500">Khi có hoạt động mới, bạn sẽ thấy lịch sử tại đây.</p>
   </div>
 );
 
@@ -84,10 +84,10 @@ const KpiCard = ({ title, value, icon: Icon, trend, color = 'text-slate-500' }) 
               {isPositive ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
               {Math.abs(trend)}%
             </span>
-            <span className="text-xs text-slate-400">so voi thang truoc</span>
+            <span className="text-xs text-slate-400">so với tháng trước</span>
           </>
         ) : (
-          <span className="text-xs text-slate-400">Chua du du lieu so sanh</span>
+          <span className="text-xs text-slate-400">Chưa đủ dữ liệu so sánh</span>
         )}
       </div>
     </article>
@@ -157,7 +157,7 @@ function Dashboard() {
         const result = await getDashboardApi();
         setData(result);
       } catch (err) {
-        setError(err.response?.data?.message || 'Khong tai duoc dashboard');
+        setError(err.response?.data?.message || 'Không tải được dashboard');
       } finally {
         setLoading(false);
       }
@@ -187,7 +187,7 @@ function Dashboard() {
       const result = await getDashboardApi();
       setData(result);
     } catch (err) {
-      setError(err.response?.data?.message || 'Khong tai duoc dashboard');
+      setError(err.response?.data?.message || 'Không tải được dashboard');
     } finally {
       setLoading(false);
     }
@@ -206,21 +206,21 @@ function Dashboard() {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-200">
               {new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
-            <h1 className="mt-1 text-2xl font-bold">Xin chao, {user?.name || 'Admin'} 👋</h1>
-            <p className="mt-1 text-sm text-blue-100">Tong quan hoat dong CRM hom nay cua ban.</p>
+            <h1 className="mt-1 text-2xl font-bold">Xin chào, {user?.name || 'Admin'} 👋</h1>
+            <p className="mt-1 text-sm text-blue-100">Tổng quan hoạt động CRM hôm nay của bạn.</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button type="button" onClick={onRefresh}
               className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20">
-              <RefreshCw className="h-4 w-4" /> Lam moi
+              <RefreshCw className="h-4 w-4" /> Làm mới
             </button>
             <Link to="/app/customers"
               className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20">
-              <UserPlus className="h-4 w-4" /> Them KH
+              <UserPlus className="h-4 w-4" /> Thêm KH
             </Link>
             <Link to="/app/deals"
               className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50">
-              <Plus className="h-4 w-4" /> Tao deal
+              <Plus className="h-4 w-4" /> Tạo deal
             </Link>
           </div>
         </div>
@@ -234,8 +234,8 @@ function Dashboard() {
 
       {/* ── KPI ── */}
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <KpiCard title="Tong khach hang" value={data.totalCustomers} icon={Users} trend={customerTrend} color="text-violet-500" />
-        <KpiCard title="Tong deals" value={data.totalDeals} icon={Handshake} trend={dealTrend} color="text-blue-500" />
+        <KpiCard title="Tổng khách hàng" value={data.totalCustomers} icon={Users} trend={customerTrend} color="text-violet-500" />
+        <KpiCard title="Tổng deals" value={data.totalDeals} icon={Handshake} trend={dealTrend} color="text-blue-500" />
         <KpiCard title="Doanh thu" value={money.format(data.totalRevenue)} icon={CircleDollarSign} trend={revenueTrend} color="text-emerald-500" />
       </section>
 
@@ -245,8 +245,8 @@ function Dashboard() {
         {/* Pipeline stages — chiếm 1/3 */}
         <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="mb-4">
-            <h2 className="text-sm font-bold text-slate-900">Pipeline hien tai</h2>
-            <p className="mt-0.5 text-xs text-slate-400">So luong deal theo tung giai doan</p>
+            <h2 className="text-sm font-bold text-slate-900">Pipeline hiện tại</h2>
+            <p className="mt-0.5 text-xs text-slate-400">Số lượng deal theo từng giai đoạn</p>
           </div>
           <div className="space-y-3">
             {STAGE_CONFIG.map((stage) => {
@@ -268,7 +268,7 @@ function Dashboard() {
               );
             })}
             {statusData.length === 0 && (
-              <p className="py-4 text-center text-sm text-slate-400">Chua co deal nao</p>
+              <p className="py-4 text-center text-sm text-slate-400">Chưa có deal nào</p>
             )}
           </div>
 
@@ -282,7 +282,7 @@ function Dashboard() {
             </div>
             <div className="rounded-xl bg-slate-50 p-3 text-center">
               <p className="text-lg font-bold text-slate-700">{data.activities.length}</p>
-              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Hoat dong</p>
+              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Hoạt động</p>
             </div>
           </div>
         </article>
@@ -291,11 +291,11 @@ function Dashboard() {
         <article className="lg:col-span-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-bold text-slate-900">Hoat dong gan day</h2>
-              <p className="mt-0.5 text-xs text-slate-400">Lich su cap nhat moi nhat cua team</p>
+              <h2 className="text-sm font-bold text-slate-900">Hoạt động gần đây</h2>
+              <p className="mt-0.5 text-xs text-slate-400">Lịch sử cập nhật mới nhất của team</p>
             </div>
             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
-              {data.activities.length} su kien
+              {data.activities.length} sự kiện
             </span>
           </div>
 

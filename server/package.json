@@ -6,6 +6,7 @@
     "dev": "nodemon index.js",
     "build": "node -e \"console.log('Server build step: no transpilation required.')\"",
     "start": "node index.js",
+    "start:server": "node index.js",
     "db:init": "node scripts/init-db.js"
   },
   "dependencies": {

@@ -9,6 +9,8 @@
   "scripts": {
     "dev": "npm run free:ports && concurrently -n server,client -c yellow,cyan \"npm:dev:server\" \"npm:dev:client\"",
     "build": "npm run build:server && npm run build:client",
+    "start": "npm run start:server",
+    "start:server": "npm run start -w server",
     "free:ports": "kill-port 5173 5000",
     "install:all": "npm install --workspaces",
     "build:client": "npm run build -w client",

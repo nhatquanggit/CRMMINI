@@ -68,3 +68,36 @@ This command starts both:
 
 - This project is configured for SQL Server, not PostgreSQL.
 - Prisma datasource is defined in `server/prisma/schema.prisma` with `provider = "sqlserver"`.
+
+## Production Deploy (Recommended)
+
+### 1) Backend on Render (Web Service)
+
+- Root Directory: `.` (project root)
+- Build Command: `npm install && npm run build:server`
+- Start Command: `npm run start:server`
+
+Required environment variables on Render:
+
+```env
+NODE_ENV=production
+PORT=10000
+JWT_SECRET=your-secret
+SQLSERVER_CONNECTION_STRING=Server=...;Database=...;User Id=...;Password=...;Encrypt=true;TrustServerCertificate=false
+```
+
+Important:
+
+- Do not use `npm run dev` on Render.
+- Keep `SQL_USE_MSNODESQLV8` unset on Render (Linux).
+
+### 2) Frontend on Vercel
+
+- Deploy from repository root (`.`), using existing `vercel.json`
+- Set environment variable:
+
+```env
+VITE_API_BASE_URL=https://your-render-service.onrender.com/api
+```
+
+Then redeploy Vercel after setting the variable.

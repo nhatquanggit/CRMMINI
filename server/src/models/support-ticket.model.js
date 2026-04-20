@@ -1,165 +1,70 @@
-import { createRequest, sql } from '../config/sqlserver.js';
+import { query } from '../config/db.js';
 
-const ticketBaseQuery = `
-  SELECT
-    t.id,
-    t.ticket_no AS ticketNo,
-    t.subject,
-    t.description,
-    t.status,
-    t.priority,
-    t.category,
-    t.customer_id AS customerId,
-    t.assigned_to AS assignedTo,
-    t.created_by AS createdBy,
-    t.due_date AS dueDate,
-    t.resolved_at AS resolvedAt,
-    t.created_at AS createdAt,
-    t.updated_at AS updatedAt,
-    c.name AS customerName,
-    assignee.name AS assigneeName,
-    creator.name AS creatorName
-  FROM SupportTickets t
-  LEFT JOIN Customers c ON c.id = t.customer_id
-  LEFT JOIN Users assignee ON assignee.id = t.assigned_to
-  INNER JOIN Users creator ON creator.id = t.created_by
+const BASE = `
+  SELECT t.*,
+    c.name AS "cName", a.name AS "aName", cr.name AS "crName"
+  FROM "SupportTickets" t
+  LEFT JOIN "Customers" c ON c.id = t.customer_id
+  LEFT JOIN "Users" a ON a.id = t.assigned_to
+  INNER JOIN "Users" cr ON cr.id = t.created_by
 `;
 
-const mapTicket = (row) => {
+const map = (row) => {
   if (!row) return null;
   return {
-    id: row.id,
-    ticketNo: row.ticketNo,
-    subject: row.subject,
-    description: row.description,
-    status: row.status,
-    priority: row.priority,
-    category: row.category,
-    customerId: row.customerId,
-    assignedTo: row.assignedTo,
-    createdBy: row.createdBy,
-    dueDate: row.dueDate,
-    resolvedAt: row.resolvedAt,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-    customer: row.customerId ? { id: row.customerId, name: row.customerName } : null,
-    assignee: row.assignedTo ? { id: row.assignedTo, name: row.assigneeName } : null,
-    creator: { id: row.createdBy, name: row.creatorName }
+    id: row.id, ticketNo: row.ticket_no, subject: row.subject, description: row.description,
+    status: row.status, priority: row.priority, category: row.category,
+    customerId: row.customer_id, assignedTo: row.assigned_to, createdBy: row.created_by,
+    dueDate: row.due_date, resolvedAt: row.resolved_at, createdAt: row.created_at, updatedAt: row.updated_at,
+    customer: row.customer_id ? { id: row.customer_id, name: row.cName } : null,
+    assignee: row.assigned_to ? { id: row.assigned_to, name: row.aName } : null,
+    creator: { id: row.created_by, name: row.crName }
   };
 };
 
 export const listSupportTickets = async (where = {}) => {
-  const request = await createRequest();
-  const clauses = [];
-
-  if (where.search) {
-    request.input('search', sql.NVarChar(255), `%${where.search}%`);
-    clauses.push('(t.ticket_no LIKE @search OR t.subject LIKE @search OR t.description LIKE @search)');
-  }
-  if (where.status) {
-    request.input('status', sql.NVarChar(20), where.status);
-    clauses.push('t.status = @status');
-  }
-  if (where.priority) {
-    request.input('priority', sql.NVarChar(20), where.priority);
-    clauses.push('t.priority = @priority');
-  }
-  if (where.assignedTo) {
-    request.input('assignedTo', sql.Int, where.assignedTo);
-    clauses.push('t.assigned_to = @assignedTo');
-  }
-  if (where.createdBy) {
-    request.input('createdBy', sql.Int, where.createdBy);
-    clauses.push('t.created_by = @createdBy');
-  }
-  if (where.customerId) {
-    request.input('customerId', sql.Int, where.customerId);
-    clauses.push('t.customer_id = @customerId');
-  }
-
-  const whereSql = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
-  const result = await request.query(`${ticketBaseQuery} ${whereSql} ORDER BY t.created_at DESC`);
-  return result.recordset.map(mapTicket);
+  const clauses = []; const values = [];
+  if (where.search) { clauses.push(`(t.ticket_no ILIKE $${values.length + 1} OR t.subject ILIKE $${values.length + 1})`); values.push(`%${where.search}%`); }
+  if (where.status) { clauses.push(`t.status = $${values.length + 1}`); values.push(where.status); }
+  if (where.priority) { clauses.push(`t.priority = $${values.length + 1}`); values.push(where.priority); }
+  if (where.assignedTo) { clauses.push(`t.assigned_to = $${values.length + 1}`); values.push(where.assignedTo); }
+  if (where.createdBy) { clauses.push(`t.created_by = $${values.length + 1}`); values.push(where.createdBy); }
+  if (where.customerId) { clauses.push(`t.customer_id = $${values.length + 1}`); values.push(where.customerId); }
+  const w = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
+  const r = await query(`${BASE} ${w} ORDER BY t.created_at DESC`, values);
+  return r.rows.map(map);
 };
 
 export const findSupportTicketById = async (id) => {
-  const request = await createRequest();
-  request.input('id', sql.Int, id);
-  const result = await request.query(`${ticketBaseQuery} WHERE t.id = @id`);
-  return mapTicket(result.recordset[0]);
+  const r = await query(`${BASE} WHERE t.id = $1`, [id]);
+  return map(r.rows[0]);
 };
 
 export const createSupportTicket = async (data) => {
-  const request = await createRequest();
-  request.input('ticketNo', sql.NVarChar(30), data.ticketNo);
-  request.input('subject', sql.NVarChar(180), data.subject);
-  request.input('description', sql.NVarChar(sql.MAX), data.description);
-  request.input('status', sql.NVarChar(20), data.status || 'OPEN');
-  request.input('priority', sql.NVarChar(20), data.priority || 'MEDIUM');
-  request.input('category', sql.NVarChar(60), data.category || null);
-  request.input('customerId', sql.Int, data.customerId ?? null);
-  request.input('assignedTo', sql.Int, data.assignedTo ?? null);
-  request.input('createdBy', sql.Int, data.createdBy);
-  request.input('dueDate', sql.DateTime2, data.dueDate ? new Date(data.dueDate) : null);
-  request.input('resolvedAt', sql.DateTime2, data.resolvedAt ? new Date(data.resolvedAt) : null);
-
-  const result = await request.query(`
-    INSERT INTO SupportTickets (ticket_no, subject, description, status, priority, category, customer_id, assigned_to, created_by, due_date, resolved_at)
-    OUTPUT INSERTED.id AS id
-    VALUES (@ticketNo, @subject, @description, @status, @priority, @category, @customerId, @assignedTo, @createdBy, @dueDate, @resolvedAt)
-  `);
-
-  return findSupportTicketById(result.recordset[0].id);
+  const r = await query(
+    `INSERT INTO "SupportTickets" (ticket_no,subject,description,status,priority,category,customer_id,assigned_to,created_by,due_date,resolved_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id`,
+    [data.ticketNo, data.subject, data.description, data.status || 'OPEN', data.priority || 'MEDIUM',
+     data.category || null, data.customerId ?? null, data.assignedTo ?? null, data.createdBy,
+     data.dueDate ? new Date(data.dueDate) : null, data.resolvedAt ? new Date(data.resolvedAt) : null]
+  );
+  return findSupportTicketById(r.rows[0].id);
 };
 
 export const updateSupportTicket = async (id, data) => {
-  const request = await createRequest();
-  request.input('id', sql.Int, id);
-  const fields = ['updated_at = GETDATE()'];
-
-  if (data.subject !== undefined) {
-    request.input('subject', sql.NVarChar(180), data.subject);
-    fields.push('subject = @subject');
+  const fields = ['updated_at=NOW()']; const values = []; let idx = 1;
+  const cols = { subject: 'subject', description: 'description', status: 'status',
+    priority: 'priority', category: 'category', customerId: 'customer_id', assignedTo: 'assigned_to' };
+  for (const [k, col] of Object.entries(cols)) {
+    if (data[k] !== undefined) { fields.push(`${col}=$${idx++}`); values.push(data[k]); }
   }
-  if (data.description !== undefined) {
-    request.input('description', sql.NVarChar(sql.MAX), data.description);
-    fields.push('description = @description');
-  }
-  if (data.status !== undefined) {
-    request.input('status', sql.NVarChar(20), data.status);
-    fields.push('status = @status');
-  }
-  if (data.priority !== undefined) {
-    request.input('priority', sql.NVarChar(20), data.priority);
-    fields.push('priority = @priority');
-  }
-  if (data.category !== undefined) {
-    request.input('category', sql.NVarChar(60), data.category || null);
-    fields.push('category = @category');
-  }
-  if (data.customerId !== undefined) {
-    request.input('customerId', sql.Int, data.customerId ?? null);
-    fields.push('customer_id = @customerId');
-  }
-  if (data.assignedTo !== undefined) {
-    request.input('assignedTo', sql.Int, data.assignedTo ?? null);
-    fields.push('assigned_to = @assignedTo');
-  }
-  if (data.dueDate !== undefined) {
-    request.input('dueDate', sql.DateTime2, data.dueDate ? new Date(data.dueDate) : null);
-    fields.push('due_date = @dueDate');
-  }
-  if (data.resolvedAt !== undefined) {
-    request.input('resolvedAt', sql.DateTime2, data.resolvedAt ? new Date(data.resolvedAt) : null);
-    fields.push('resolved_at = @resolvedAt');
-  }
-
-  await request.query(`UPDATE SupportTickets SET ${fields.join(', ')} WHERE id = @id`);
+  if (data.dueDate !== undefined) { fields.push(`due_date=$${idx++}`); values.push(data.dueDate ? new Date(data.dueDate) : null); }
+  if (data.resolvedAt !== undefined) { fields.push(`resolved_at=$${idx++}`); values.push(data.resolvedAt ? new Date(data.resolvedAt) : null); }
+  values.push(id);
+  await query(`UPDATE "SupportTickets" SET ${fields.join(',')} WHERE id=$${idx}`, values);
   return findSupportTicketById(id);
 };
 
 export const deleteSupportTicket = async (id) => {
-  const request = await createRequest();
-  request.input('id', sql.Int, id);
-  await request.query('DELETE FROM SupportTickets WHERE id = @id');
+  await query('DELETE FROM "SupportTickets" WHERE id = $1', [id]);
 };

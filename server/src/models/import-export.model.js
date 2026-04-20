@@ -1,103 +1,46 @@
-import { createRequest, sql } from '../config/sqlserver.js';
+import { query } from '../config/db.js';
 
-/**
- * Fetch all customers for export (admin sees all, sales sees own)
- */
 export const getCustomersForExport = async (userId, isAdmin) => {
-  const request = await createRequest();
-  let whereClause = '';
-  if (!isAdmin) {
-    request.input('userId', sql.Int, userId);
-    whereClause = 'WHERE c.assigned_to = @userId';
-  }
-
-  const result = await request.query(`
-    SELECT
-      c.id,
-      c.name,
-      c.email,
-      c.phone,
-      c.company,
-      c.status,
-      u.name  AS assigneeName,
-      c.created_at AS createdAt
-    FROM Customers c
-    LEFT JOIN Users u ON u.id = c.assigned_to
-    ${whereClause}
-    ORDER BY c.created_at DESC
-  `);
-
-  return result.recordset;
+  const values = [];
+  const w = isAdmin ? '' : `WHERE c.assigned_to = $${values.length + 1}`;
+  if (!isAdmin) values.push(userId);
+  const r = await query(
+    `SELECT c.id, c.name, c.email, c.phone, c.company, c.status, u.name AS "assigneeName", c.created_at AS "createdAt"
+     FROM "Customers" c LEFT JOIN "Users" u ON u.id = c.assigned_to ${w} ORDER BY c.created_at DESC`,
+    values
+  );
+  return r.rows;
 };
 
-/**
- * Fetch all deals for export
- */
 export const getDealsForExport = async (userId, isAdmin) => {
-  const request = await createRequest();
-  let whereClause = '';
-  if (!isAdmin) {
-    request.input('userId', sql.Int, userId);
-    whereClause = 'WHERE d.owner_id = @userId';
-  }
-
-  const result = await request.query(`
-    SELECT
-      d.id,
-      d.title,
-      d.value,
-      d.stage,
-      c.name   AS customerName,
-      u.name   AS ownerName,
-      d.created_at AS createdAt
-    FROM Deals d
-    LEFT JOIN Customers c ON c.id = d.customer_id
-    LEFT JOIN Users u ON u.id = d.owner_id
-    ${whereClause}
-    ORDER BY d.created_at DESC
-  `);
-
-  return result.recordset;
+  const values = [];
+  const w = isAdmin ? '' : `WHERE d.owner_id = $${values.length + 1}`;
+  if (!isAdmin) values.push(userId);
+  const r = await query(
+    `SELECT d.id, d.title, d.value, d.stage, c.name AS "customerName", u.name AS "ownerName", d.created_at AS "createdAt"
+     FROM "Deals" d LEFT JOIN "Customers" c ON c.id = d.customer_id LEFT JOIN "Users" u ON u.id = d.owner_id ${w} ORDER BY d.created_at DESC`,
+    values
+  );
+  return r.rows;
 };
 
-/**
- * Bulk insert customers from import data.
- * Each row: { name, email, phone, company, status, assignedTo }
- * Returns { inserted, skipped, errors }
- */
 export const bulkInsertCustomers = async (rows, defaultAssignedTo) => {
-  const inserted = [];
-  const skipped = [];
-  const errors = [];
-
+  const inserted = []; const skipped = []; const errors = [];
   for (const row of rows) {
     try {
-      const request = await createRequest();
-      request.input('name',       sql.NVarChar(120), row.name);
-      request.input('email',      sql.NVarChar(255), row.email);
-      request.input('phone',      sql.NVarChar(30),  row.phone || '');
-      request.input('company',    sql.NVarChar(180), row.company || '');
-      request.input('status',     sql.NVarChar(20),  row.status || 'NEW');
-      request.input('assignedTo', sql.Int,            defaultAssignedTo);
-
-      const result = await request.query(`
-        IF NOT EXISTS (SELECT 1 FROM Customers WHERE email = @email)
-        BEGIN
-          INSERT INTO Customers (name, email, phone, company, status, assigned_to)
-          OUTPUT INSERTED.id, INSERTED.name, INSERTED.email
-          VALUES (@name, @email, @phone, @company, @status, @assignedTo)
-        END
-      `);
-
-      if (result.recordset.length > 0) {
-        inserted.push(result.recordset[0]);
-      } else {
+      const exists = await query('SELECT id FROM "Customers" WHERE email = $1', [row.email]);
+      if (exists.rows.length > 0) {
         skipped.push({ email: row.email, reason: 'Email đã tồn tại' });
+        continue;
       }
+      const r = await query(
+        `INSERT INTO "Customers" (name,email,phone,company,status,assigned_to) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id,name,email`,
+        [row.name, row.email, row.phone || '', row.company || '', row.status || 'NEW', defaultAssignedTo]
+      );
+      inserted.push(r.rows[0]);
     } catch (e) {
       errors.push({ row: row.name || row.email, reason: e.message });
     }
   }
-
   return { inserted, skipped, errors };
 };

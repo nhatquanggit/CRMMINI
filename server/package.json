@@ -4,10 +4,12 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon index.js",
-    "build": "node -e \"console.log('Server build step: no transpilation required.')\"",
+    "build": "npx prisma generate && node -e \"console.log('Server build step: no transpilation required.')\"",
     "start": "node index.js",
     "start:server": "node index.js",
-    "db:init": "node scripts/init-db.js"
+    "db:init": "node scripts/init-db.js",
+    "prisma:generate": "npx prisma generate",
+    "prisma:push": "npx prisma db push"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -17,14 +19,16 @@
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
-    "multer": "^2.1.1",
     "mssql": "^11.0.1",
+    "multer": "^2.1.1",
     "pg": "^8.13.1",
     "socket.io": "^4.8.3",
     "xlsx": "^0.18.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "@prisma/client": "^6.19.3",
+    "nodemon": "^3.1.4",
+    "prisma": "^6.19.3"
   }
 }

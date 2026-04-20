@@ -1,53 +1,35 @@
 import bcrypt from 'bcryptjs';
 import ApiError from '../utils/apiError.js';
-import { getPool, sql } from '../config/sqlserver.js';
+import { query, withTransaction } from '../config/db.js';
 import { signJwt } from '../utils/jwt.js';
 import {
-  bumpUserTokenVersionById,
-  findUserByEmail,
-  findUserById,
-  findUserWithPasswordById,
-  updateUserPasswordById,
-  updateUserProfileById
+  bumpUserTokenVersionById, findUserByEmail, findUserById,
+  findUserWithPasswordById, updateUserPasswordById, updateUserProfileById
 } from '../models/user.model.js';
 
 export const updateProfile = async (userId, payload) => {
   const nextEmail = payload.email?.trim();
-
   if (nextEmail) {
     const existing = await findUserByEmail(nextEmail);
-    if (existing && existing.id !== userId) {
-      throw new ApiError(409, 'Email already in use');
-    }
+    if (existing && existing.id !== userId) throw new ApiError(409, 'Email already in use');
   }
-
   await updateUserProfileById(userId, payload);
   return findUserById(userId);
 };
 
 export const changePassword = async (userId, oldPassword, newPassword) => {
   const user = await findUserWithPasswordById(userId);
-  if (!user) {
-    throw new ApiError(404, 'User not found');
-  }
-
+  if (!user) throw new ApiError(404, 'User not found');
   const valid = await bcrypt.compare(oldPassword, user.password);
-  if (!valid) {
-    throw new ApiError(400, 'Old password is incorrect');
-  }
-
+  if (!valid) throw new ApiError(400, 'Old password is incorrect');
   const hashed = await bcrypt.hash(newPassword, 10);
   await updateUserPasswordById(userId, hashed);
-
   return { changed: true };
 };
 
 export const logoutOtherSessions = async (userId) => {
   const user = await bumpUserTokenVersionById(userId);
-  if (!user) {
-    throw new ApiError(404, 'User not found');
-  }
-
+  if (!user) throw new ApiError(404, 'User not found');
   return {
     token: signJwt({ userId: user.id, role: user.role, tokenVersion: user.tokenVersion || 0 }),
     user
@@ -55,39 +37,13 @@ export const logoutOtherSessions = async (userId) => {
 };
 
 export const deleteOwnAccount = async (userId) => {
-  const pool = await getPool();
-  const transaction = new sql.Transaction(pool);
-
-  await transaction.begin();
-
-  try {
-    const request = new sql.Request(transaction);
-    request.input('userId', sql.Int, userId);
-
-    await request.query(`
-      DELETE FROM Deals
-      WHERE owner_id = @userId
-         OR customer_id IN (SELECT id FROM Customers WHERE assigned_to = @userId)
-    `);
-
-    await request.query(`
-      DELETE FROM Activities
-      WHERE customer_id IN (SELECT id FROM Customers WHERE assigned_to = @userId)
-    `);
-
-    await request.query('DELETE FROM Avatars WHERE user_id = @userId');
-    await request.query('DELETE FROM Customers WHERE assigned_to = @userId');
-
-    const result = await request.query('DELETE FROM Users OUTPUT DELETED.id AS id WHERE id = @userId');
-
-    if (!result.recordset[0]) {
-      throw new ApiError(404, 'User not found');
-    }
-
-    await transaction.commit();
+  return withTransaction(async (client) => {
+    await client.query(`DELETE FROM "Deals" WHERE owner_id=$1 OR customer_id IN (SELECT id FROM "Customers" WHERE assigned_to=$1)`, [userId]);
+    await client.query(`DELETE FROM "Activities" WHERE customer_id IN (SELECT id FROM "Customers" WHERE assigned_to=$1)`, [userId]);
+    await client.query('DELETE FROM "Avatars" WHERE user_id=$1', [userId]);
+    await client.query('DELETE FROM "Customers" WHERE assigned_to=$1', [userId]);
+    const r = await client.query('DELETE FROM "Users" WHERE id=$1 RETURNING id', [userId]);
+    if (!r.rows[0]) throw new ApiError(404, 'User not found');
     return { deleted: true };
-  } catch (error) {
-    await transaction.rollback();
-    throw error;
-  }
+  });
 };

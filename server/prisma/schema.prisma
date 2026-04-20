@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlserver"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -287,7 +287,7 @@ model SupportTicket {
 model SalesTarget {
   id          Int      @id @default(autoincrement())
   ownerId     Int      @map("owner_id")
-  targetMonth String   @map("target_month") @db.Char(7)
+  targetMonth String   @map("target_month") 
   targetValue Decimal  @map("target_value") @db.Decimal(18, 2)
   note        String?
   createdBy   Int      @map("created_by")

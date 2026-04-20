@@ -1,139 +1,66 @@
-import { createRequest, sql } from '../config/sqlserver.js';
+import { query } from '../config/db.js';
 
 const isAdmin = (user) => user.role === 'ADMIN';
-
 const DEAL_STAGES = ['LEAD', 'CONTACTED', 'NEGOTIATION', 'WON', 'LOST'];
 
 export const getDashboardSummary = async (currentUser) => {
-  const dealCondition = isAdmin(currentUser) ? '' : ' WHERE owner_id = @userId';
-  const customerCondition = isAdmin(currentUser) ? '' : ' WHERE assigned_to = @userId';
+  const adminMode = isAdmin(currentUser);
+  const values = adminMode ? [] : [currentUser.id];
+  const cWhere = adminMode ? '' : 'WHERE assigned_to = $1';
+  const dWhere = adminMode ? '' : 'WHERE owner_id = $1';
 
-  const countCustomersRequest = await createRequest();
-  const countDealsRequest = await createRequest();
-  const revenueRequest = await createRequest();
-
-  if (!isAdmin(currentUser)) {
-    countCustomersRequest.input('userId', sql.Int, currentUser.id);
-    countDealsRequest.input('userId', sql.Int, currentUser.id);
-    revenueRequest.input('userId', sql.Int, currentUser.id);
-  }
-
-  const [customerResult, dealResult, revenueResult] = await Promise.all([
-    countCustomersRequest.query(`SELECT COUNT(*) AS total FROM Customers${customerCondition}`),
-    countDealsRequest.query(`SELECT COUNT(*) AS total FROM Deals${dealCondition}`),
-    revenueRequest.query(
-      `SELECT ISNULL(SUM(CAST(value AS DECIMAL(18, 2))), 0) AS revenue FROM Deals${
-        dealCondition ? `${dealCondition} AND stage = 'WON'` : " WHERE stage = 'WON'"
-      }`
-    )
+  const [cRes, dRes, rRes] = await Promise.all([
+    query(`SELECT COUNT(*) AS total FROM "Customers" ${cWhere}`, values),
+    query(`SELECT COUNT(*) AS total FROM "Deals" ${dWhere}`, values),
+    query(`SELECT COALESCE(SUM(value::numeric),0) AS revenue FROM "Deals" ${adminMode ? "WHERE stage='WON'" : "WHERE owner_id=$1 AND stage='WON'"}`, values)
   ]);
 
   return {
-    totalCustomers: customerResult.recordset[0]?.total || 0,
-    totalDeals: dealResult.recordset[0]?.total || 0,
-    totalRevenue: Number(revenueResult.recordset[0]?.revenue || 0)
+    totalCustomers: Number(cRes.rows[0]?.total || 0),
+    totalDeals: Number(dRes.rows[0]?.total || 0),
+    totalRevenue: Number(rRes.rows[0]?.revenue || 0)
   };
 };
 
 export const getRevenueByMonth = async (currentUser) => {
-  const request = await createRequest();
-
-  if (!isAdmin(currentUser)) {
-    request.input('userId', sql.Int, currentUser.id);
-  }
-
-  const result = await request.query(`
-    SELECT
-      CONVERT(char(7), created_at, 126) AS month,
-      ISNULL(SUM(CAST(value AS DECIMAL(18, 2))), 0) AS revenue
-    FROM Deals
-    WHERE stage = 'WON' ${isAdmin(currentUser) ? '' : 'AND owner_id = @userId'}
-    GROUP BY CONVERT(char(7), created_at, 126)
-    ORDER BY month
-  `);
-
-  return result.recordset.map((item) => ({
-    month: item.month,
-    revenue: Number(item.revenue)
-  }));
+  const adminMode = isAdmin(currentUser);
+  const values = adminMode ? [] : [currentUser.id];
+  const w = adminMode ? "WHERE stage='WON'" : "WHERE stage='WON' AND owner_id=$1";
+  const r = await query(
+    `SELECT TO_CHAR(created_at,'YYYY-MM') AS month, COALESCE(SUM(value::numeric),0) AS revenue
+     FROM "Deals" ${w} GROUP BY month ORDER BY month`,
+    values
+  );
+  return r.rows.map((row) => ({ month: row.month, revenue: Number(row.revenue) }));
 };
 
 export const getDealStatusBreakdown = async (currentUser) => {
-  const request = await createRequest();
-
-  if (!isAdmin(currentUser)) {
-    request.input('userId', sql.Int, currentUser.id);
-  }
-
-  const result = await request.query(`
-    SELECT
-      stage AS status,
-      COUNT(*) AS total
-    FROM Deals
-    ${isAdmin(currentUser) ? '' : 'WHERE owner_id = @userId'}
-    GROUP BY stage
-  `);
-
-  const counts = new Map(result.recordset.map((row) => [row.status, row.total]));
+  const adminMode = isAdmin(currentUser);
+  const values = adminMode ? [] : [currentUser.id];
+  const w = adminMode ? '' : 'WHERE owner_id=$1';
+  const r = await query(`SELECT stage AS status, COUNT(*) AS total FROM "Deals" ${w} GROUP BY stage`, values);
+  const counts = new Map(r.rows.map((row) => [row.status, Number(row.total)]));
   return DEAL_STAGES.map((status) => ({ status, total: counts.get(status) || 0 }));
 };
 
 export const getRecentActivities = async (currentUser, limit = 8) => {
-  const schemaRequest = await createRequest();
-  const schemaResult = await schemaRequest.query(`
-    SELECT
-      CASE WHEN OBJECT_ID('Activities', 'U') IS NOT NULL AND COL_LENGTH('Activities', 'content') IS NOT NULL THEN 1 ELSE 0 END AS hasContent,
-      CASE WHEN OBJECT_ID('Activities', 'U') IS NOT NULL AND COL_LENGTH('Activities', 'note') IS NOT NULL THEN 1 ELSE 0 END AS hasNote
-  `);
-  const schema = schemaResult.recordset[0] || {};
-  const hasContent = Boolean(schema.hasContent);
-  const hasNote = Boolean(schema.hasNote);
-  const activityTextExpr = hasContent
-    ? 'a.content'
-    : hasNote
-      ? 'a.note'
-      : "''";
+  const adminMode = isAdmin(currentUser);
+  const values = [limit];
+  const actWhere = adminMode ? '' : `AND c.assigned_to = $${values.length + 1}`;
+  const dealWhere = adminMode ? '' : `AND d.owner_id = $${values.length + 1}`;
+  if (!adminMode) { values.push(currentUser.id); values.push(currentUser.id); }
 
-  const request = await createRequest();
-  request.input('limit', sql.Int, limit);
-
-  if (!isAdmin(currentUser)) {
-    request.input('userId', sql.Int, currentUser.id);
-  }
-
-  const result = await request.query(`
-    WITH unified AS (
-      SELECT
-        a.created_at AS createdAt,
-        a.type AS type,
-        ${activityTextExpr} AS description
-      FROM Activities a
-      INNER JOIN Customers c ON c.id = a.customer_id
-      ${isAdmin(currentUser) ? '' : 'WHERE c.assigned_to = @userId'}
-
+  const r = await query(`
+    SELECT * FROM (
+      SELECT a.created_at, a.type, a.content AS description
+      FROM "Activities" a INNER JOIN "Customers" c ON c.id = a.customer_id WHERE 1=1 ${actWhere}
       UNION ALL
+      SELECT d.created_at, 'DEAL_CREATED' AS type, CONCAT('Tao deal: ', d.title, ' (', c.name, ')') AS description
+      FROM "Deals" d INNER JOIN "Customers" c ON c.id = d.customer_id WHERE 1=1 ${dealWhere}
+    ) unified ORDER BY created_at DESC LIMIT $1
+  `, values);
 
-      SELECT
-        d.created_at AS createdAt,
-        'DEAL_CREATED' AS type,
-        CONCAT('Tao deal: ', d.title, ' (', c.name, ')') AS description
-      FROM Deals d
-      INNER JOIN Customers c ON c.id = d.customer_id
-      ${isAdmin(currentUser) ? '' : 'WHERE d.owner_id = @userId'}
-    )
-    SELECT TOP (@limit)
-      createdAt,
-      type,
-      description
-    FROM unified
-    ORDER BY createdAt DESC
-  `);
-
-  return result.recordset.map((row) => ({
-    type: row.type,
-    description: row.description,
-    createdAt: row.createdAt
-  }));
+  return r.rows.map((row) => ({ type: row.type, description: row.description, createdAt: row.created_at }));
 };
 
 export const getDashboardOverview = async (currentUser) => {
@@ -143,11 +70,5 @@ export const getDashboardOverview = async (currentUser) => {
     getDealStatusBreakdown(currentUser),
     getRecentActivities(currentUser, 8)
   ]);
-
-  return {
-    ...summary,
-    revenueByMonth,
-    dealStatus,
-    activities
-  };
+  return { ...summary, revenueByMonth, dealStatus, activities };
 };

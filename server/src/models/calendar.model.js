@@ -1,173 +1,67 @@
-import { createRequest, sql } from '../config/sqlserver.js';
+import { query } from '../config/db.js';
 
-/**
- * Get calendar events from Tasks and Activities within a date range.
- * Returns a unified list of events for the calendar view.
- */
 export const listCalendarEvents = async (where = {}) => {
-  const request = await createRequest();
-
   const startDate = where.startDate ? new Date(where.startDate) : new Date();
   const endDate = where.endDate ? new Date(where.endDate) : new Date();
+  const values = [startDate, endDate];
 
-  request.input('startDate', sql.DateTime2, startDate);
-  request.input('endDate', sql.DateTime2, endDate);
+  const taskUserClause = where.userId ? `AND t.assigned_to = $${values.length + 1}` : '';
+  if (where.userId) values.push(where.userId);
 
-  if (where.userId) {
-    request.input('userId', sql.Int, where.userId);
-  }
+  const apptUserClause = where.userId ? `AND a.assigned_to = $${values.length + 1}` : '';
+  if (where.userId) values.push(where.userId);
 
-  const schemaReq = await createRequest();
-  const schemaResult = await schemaReq.query(`
-    SELECT
-      CASE WHEN OBJECT_ID('Tasks', 'U') IS NOT NULL THEN 1 ELSE 0 END AS hasTasks,
-      CASE WHEN OBJECT_ID('Activities', 'U') IS NOT NULL THEN 1 ELSE 0 END AS hasActivities,
-      CASE WHEN OBJECT_ID('Appointments', 'U') IS NOT NULL THEN 1 ELSE 0 END AS hasAppointments,
-      CASE WHEN OBJECT_ID('Activities', 'U') IS NOT NULL AND COL_LENGTH('Activities', 'content') IS NOT NULL THEN 1 ELSE 0 END AS hasActivityContent,
-      CASE WHEN OBJECT_ID('Activities', 'U') IS NOT NULL AND COL_LENGTH('Activities', 'note') IS NOT NULL THEN 1 ELSE 0 END AS hasActivityNote,
-      CASE WHEN OBJECT_ID('Activities', 'U') IS NOT NULL AND COL_LENGTH('Activities', 'created_by') IS NOT NULL THEN 1 ELSE 0 END AS hasActivityCreatedBy,
-      CASE WHEN OBJECT_ID('Activities', 'U') IS NOT NULL AND COL_LENGTH('Activities', 'deal_id') IS NOT NULL THEN 1 ELSE 0 END AS hasActivityDealId
-  `);
+  const actUserClause = where.userId ? `AND act.created_by = $${values.length + 1}` : '';
+  if (where.userId) values.push(where.userId);
 
-  const schema = schemaResult.recordset[0] || {};
-  const hasTasks = Boolean(schema.hasTasks);
-  const hasActivities = Boolean(schema.hasActivities);
-  const hasAppointments = Boolean(schema.hasAppointments);
-  const hasContent = Boolean(schema.hasActivityContent);
-  const hasNote = Boolean(schema.hasActivityNote);
-  const hasActivityCreatedBy = Boolean(schema.hasActivityCreatedBy);
-  const hasActivityDealId = Boolean(schema.hasActivityDealId);
+  const r = await query(`
+    SELECT 'task' AS source, t.id, t.title, t.description, t.status, t.priority,
+      t.due_date AS event_date, NULL AS type,
+      u1.id AS assignee_id, u1.name AS assignee_name,
+      c.id AS customer_id, c.name AS customer_name,
+      d.id AS deal_id, d.title AS deal_title, NULL AS remind_at
+    FROM "Tasks" t
+    LEFT JOIN "Users" u1 ON u1.id = t.assigned_to
+    LEFT JOIN "Customers" c ON c.id = t.customer_id
+    LEFT JOIN "Deals" d ON d.id = t.deal_id
+    WHERE t.status NOT IN ('CANCELLED','DONE') AND t.due_date BETWEEN $1 AND $2 ${taskUserClause}
 
-  const activityTextExpr = hasContent
-    ? 'a.content'
-    : hasNote
-      ? 'a.note'
-      : "''";
+    UNION ALL
 
-  const taskUserClause = where.userId ? 'AND t.assigned_to = @userId' : '';
-  const appointmentUserClause = where.userId ? 'AND a.assigned_to = @userId' : '';
+    SELECT 'appointment' AS source, a.id, a.title, a.description, a.status, NULL AS priority,
+      a.start_time AS event_date, NULL AS type,
+      u2.id AS assignee_id, u2.name AS assignee_name,
+      c2.id AS customer_id, c2.name AS customer_name,
+      d2.id AS deal_id, d2.title AS deal_title, a.remind_at
+    FROM "Appointments" a
+    LEFT JOIN "Users" u2 ON u2.id = a.assigned_to
+    LEFT JOIN "Customers" c2 ON c2.id = a.customer_id
+    LEFT JOIN "Deals" d2 ON d2.id = a.deal_id
+    WHERE a.status = 'SCHEDULED' AND a.start_time BETWEEN $1 AND $2 ${apptUserClause}
 
-  let actUserClause = '';
-  if (where.userId) {
-    if (hasActivityCreatedBy) {
-      actUserClause = 'AND a.created_by = @userId';
-    } else {
-      // If the Activities table cannot be filtered by creator, do not expose meeting activities to non-admin users.
-      actUserClause = 'AND 1 = 0';
-    }
-  }
+    UNION ALL
 
-  const queryParts = [];
+    SELECT 'meeting' AS source, act.id, act.type || ': ' || LEFT(act.content,80) AS title,
+      act.content AS description, NULL AS status, NULL AS priority,
+      act.created_at AS event_date, act.type,
+      u3.id AS assignee_id, u3.name AS assignee_name,
+      c3.id AS customer_id, c3.name AS customer_name,
+      d3.id AS deal_id, d3.title AS deal_title, NULL AS remind_at
+    FROM "Activities" act
+    LEFT JOIN "Users" u3 ON u3.id = act.created_by
+    LEFT JOIN "Customers" c3 ON c3.id = act.customer_id
+    LEFT JOIN "Deals" d3 ON d3.id = act.deal_id
+    WHERE act.type = 'MEETING' AND act.created_at BETWEEN $1 AND $2 ${actUserClause}
 
-  if (hasTasks) {
-    queryParts.push(`
-      -- Tasks as calendar events (by due date)
-      SELECT
-        'task'          AS source,
-        t.id            AS id,
-        t.title         AS title,
-        t.description   AS description,
-        t.status        AS status,
-        t.priority      AS priority,
-        t.due_date      AS eventDate,
-        NULL            AS type,
-        u1.id           AS assigneeId,
-        u1.name         AS assigneeName,
-        c.id            AS customerId,
-        c.name          AS customerName,
-        d.id            AS dealId,
-        d.title         AS dealTitle,
-        NULL            AS remindAt
-      FROM Tasks t
-      LEFT JOIN Users u1 ON u1.id = t.assigned_to
-      LEFT JOIN Customers c ON c.id = t.customer_id
-      LEFT JOIN Deals d ON d.id = t.deal_id
-      WHERE
-        t.status NOT IN ('CANCELLED', 'DONE')
-        AND t.due_date BETWEEN @startDate AND @endDate
-        ${taskUserClause}
-    `);
-  }
+    ORDER BY event_date ASC
+  `, values);
 
-  if (hasActivities) {
-    queryParts.push(`
-      -- Meeting activities as calendar events
-      SELECT
-        'meeting'       AS source,
-        a.id            AS id,
-        a.type + ': ' + LEFT(${activityTextExpr}, 80) AS title,
-        ${activityTextExpr} AS description,
-        NULL            AS status,
-        NULL            AS priority,
-        a.created_at    AS eventDate,
-        a.type          AS type,
-        ${hasActivityCreatedBy ? 'u2.id' : 'NULL'}           AS assigneeId,
-        ${hasActivityCreatedBy ? 'u2.name' : 'NULL'}         AS assigneeName,
-        c2.id           AS customerId,
-        c2.name         AS customerName,
-        ${hasActivityDealId ? 'd2.id' : 'NULL'}           AS dealId,
-        ${hasActivityDealId ? 'd2.title' : 'NULL'}        AS dealTitle,
-        NULL            AS remindAt
-      FROM Activities a
-      ${hasActivityCreatedBy ? 'LEFT JOIN Users u2 ON u2.id = a.created_by' : ''}
-      LEFT JOIN Customers c2 ON c2.id = a.customer_id
-      ${hasActivityDealId ? 'LEFT JOIN Deals d2 ON d2.id = a.deal_id' : ''}
-      WHERE
-        a.type = 'MEETING'
-        AND a.created_at BETWEEN @startDate AND @endDate
-        ${actUserClause}
-    `);
-  }
-
-  if (hasAppointments) {
-    queryParts.push(`
-      -- Appointments as calendar events
-      SELECT
-        'appointment' AS source,
-        a.id          AS id,
-        a.title       AS title,
-        a.description AS description,
-        a.status      AS status,
-        NULL          AS priority,
-        a.start_time  AS eventDate,
-        a.type AS type,
-        u.id          AS assigneeId,
-        u.name        AS assigneeName,
-        c.id          AS customerId,
-        c.name        AS customerName,
-        d.id          AS dealId,
-        d.title       AS dealTitle,
-        a.remind_at   AS remindAt
-      FROM Appointments a
-      LEFT JOIN Users u ON u.id = a.assigned_to
-      LEFT JOIN Customers c ON c.id = a.customer_id
-      LEFT JOIN Deals d ON d.id = a.deal_id
-      WHERE
-        a.status = 'SCHEDULED'
-        AND a.start_time BETWEEN @startDate AND @endDate
-        ${appointmentUserClause}
-    `);
-  }
-
-  if (queryParts.length === 0) {
-    return [];
-  }
-
-  const query = `${queryParts.join('\nUNION ALL\n')}\nORDER BY eventDate ASC`;
-  const result = await request.query(query);
-
-  return result.recordset.map((row) => ({
-    id: row.id,
-    source: row.source,
-    title: row.title,
-    description: row.description,
-    status: row.status,
-    priority: row.priority,
-    type: row.type,
-    eventDate: row.eventDate,
-    remindAt: row.remindAt || null,
-    assignee: row.assigneeId ? { id: row.assigneeId, name: row.assigneeName } : null,
-    customer: row.customerId ? { id: row.customerId, name: row.customerName } : null,
-    deal: row.dealId ? { id: row.dealId, title: row.dealTitle } : null
+  return r.rows.map((row) => ({
+    id: row.id, source: row.source, title: row.title, description: row.description,
+    status: row.status, priority: row.priority, type: row.type,
+    eventDate: row.event_date, remindAt: row.remind_at || null,
+    assignee: row.assignee_id ? { id: row.assignee_id, name: row.assignee_name } : null,
+    customer: row.customer_id ? { id: row.customer_id, name: row.customer_name } : null,
+    deal: row.deal_id ? { id: row.deal_id, title: row.deal_title } : null
   }));
 };

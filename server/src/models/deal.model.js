@@ -1,124 +1,52 @@
-import { createRequest, sql } from '../config/sqlserver.js';
+import { query } from '../config/db.js';
 
-const dealBaseQuery = `
-  SELECT
-    d.id,
-    d.title,
-    d.value,
-    d.stage,
-    d.customer_id AS customerId,
-    d.owner_id AS ownerId,
-    d.created_at AS createdAt,
-    c.id AS customerRefId,
-    c.name AS customerName,
-    c.email AS customerEmail,
-    c.company AS customerCompany,
-    c.status AS customerStatus,
-    u.id AS ownerRefId,
-    u.name AS ownerName,
-    u.email AS ownerEmail,
-    u.role AS ownerRole
-  FROM Deals d
-  INNER JOIN Customers c ON c.id = d.customer_id
-  INNER JOIN Users u ON u.id = d.owner_id
+const BASE = `
+  SELECT d.*,
+    c.id AS "cId", c.name AS "cName", c.email AS "cEmail", c.company AS "cCompany", c.status AS "cStatus",
+    u.id AS "oId", u.name AS "oName", u.email AS "oEmail", u.role AS "oRole"
+  FROM "Deals" d
+  INNER JOIN "Customers" c ON c.id = d.customer_id
+  INNER JOIN "Users" u ON u.id = d.owner_id
 `;
 
-const mapDeal = (row) => {
-  if (!row) {
-    return null;
-  }
-
+const map = (row) => {
+  if (!row) return null;
   return {
-    id: row.id,
-    title: row.title,
-    value: Number(row.value),
-    stage: row.stage,
-    customerId: row.customerId,
-    ownerId: row.ownerId,
-    createdAt: row.createdAt,
-    customer: {
-      id: row.customerRefId,
-      name: row.customerName,
-      email: row.customerEmail,
-      company: row.customerCompany,
-      status: row.customerStatus
-    },
-    owner: {
-      id: row.ownerRefId,
-      name: row.ownerName,
-      email: row.ownerEmail,
-      role: row.ownerRole
-    }
+    id: row.id, title: row.title, value: Number(row.value), stage: row.stage,
+    customerId: row.customer_id, ownerId: row.owner_id, createdAt: row.created_at,
+    customer: { id: row.cId, name: row.cName, email: row.cEmail, company: row.cCompany, status: row.cStatus },
+    owner: { id: row.oId, name: row.oName, email: row.oEmail, role: row.oRole }
   };
 };
 
 export const listDeals = async (where = {}) => {
-  const request = await createRequest();
-  const clauses = [];
-
-  if (where.ownerId) {
-    request.input('ownerId', sql.Int, where.ownerId);
-    clauses.push('d.owner_id = @ownerId');
-  }
-
-  const whereSql = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
-  const result = await request.query(`${dealBaseQuery} ${whereSql} ORDER BY d.created_at DESC`);
-  return result.recordset.map(mapDeal);
+  const clauses = []; const values = [];
+  if (where.ownerId) { clauses.push(`d.owner_id = $${values.length + 1}`); values.push(where.ownerId); }
+  const w = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
+  const r = await query(`${BASE} ${w} ORDER BY d.created_at DESC`, values);
+  return r.rows.map(map);
 };
 
 export const findDealById = async (id) => {
-  const request = await createRequest();
-  request.input('id', sql.Int, id);
-  const result = await request.query(`${dealBaseQuery} WHERE d.id = @id`);
-  return mapDeal(result.recordset[0]);
+  const r = await query(`${BASE} WHERE d.id = $1`, [id]);
+  return map(r.rows[0]);
 };
 
 export const createDeal = async (data) => {
-  const request = await createRequest();
-  request.input('title', sql.NVarChar(180), data.title);
-  request.input('value', sql.Decimal(18, 2), data.value);
-  request.input('stage', sql.NVarChar(20), data.stage || 'LEAD');
-  request.input('customerId', sql.Int, data.customerId);
-  request.input('ownerId', sql.Int, data.ownerId);
-
-  const result = await request.query(`
-    INSERT INTO Deals (title, value, stage, customer_id, owner_id)
-    OUTPUT INSERTED.id AS id
-    VALUES (@title, @value, @stage, @customerId, @ownerId)
-  `);
-
-  return findDealById(result.recordset[0].id);
+  const r = await query(
+    `INSERT INTO "Deals" (title, value, stage, customer_id, owner_id) VALUES ($1,$2,$3,$4,$5) RETURNING id`,
+    [data.title, data.value, data.stage || 'LEAD', data.customerId, data.ownerId]
+  );
+  return findDealById(r.rows[0].id);
 };
 
 export const updateDeal = async (id, data) => {
-  const fields = [];
-  const request = await createRequest();
-  request.input('id', sql.Int, id);
-
-  if (data.title !== undefined) {
-    request.input('title', sql.NVarChar(180), data.title);
-    fields.push('title = @title');
-  }
-  if (data.value !== undefined) {
-    request.input('value', sql.Decimal(18, 2), data.value);
-    fields.push('value = @value');
-  }
-  if (data.stage !== undefined) {
-    request.input('stage', sql.NVarChar(20), data.stage);
-    fields.push('stage = @stage');
-  }
-  if (data.customerId !== undefined) {
-    request.input('customerId', sql.Int, data.customerId);
-    fields.push('customer_id = @customerId');
-  }
-  if (data.ownerId !== undefined) {
-    request.input('ownerId', sql.Int, data.ownerId);
-    fields.push('owner_id = @ownerId');
-  }
-
-  if (fields.length) {
-    await request.query(`UPDATE Deals SET ${fields.join(', ')} WHERE id = @id`);
-  }
-
+  const fields = []; const values = []; let idx = 1;
+  if (data.title !== undefined) { fields.push(`title=$${idx++}`); values.push(data.title); }
+  if (data.value !== undefined) { fields.push(`value=$${idx++}`); values.push(data.value); }
+  if (data.stage !== undefined) { fields.push(`stage=$${idx++}`); values.push(data.stage); }
+  if (data.customerId !== undefined) { fields.push(`customer_id=$${idx++}`); values.push(data.customerId); }
+  if (data.ownerId !== undefined) { fields.push(`owner_id=$${idx++}`); values.push(data.ownerId); }
+  if (fields.length) { values.push(id); await query(`UPDATE "Deals" SET ${fields.join(',')} WHERE id=$${idx}`, values); }
   return findDealById(id);
 };

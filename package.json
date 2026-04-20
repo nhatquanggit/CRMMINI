@@ -1,0 +1,23 @@
+{
+  "name": "crm-mini",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "npm run free:ports && concurrently -n server,client -c yellow,cyan \"npm:dev:server\" \"npm:dev:client\"",
+    "build": "npm run build:server && npm run build:client",
+    "free:ports": "kill-port 5173 5000",
+    "install:all": "npm install --workspaces",
+    "build:client": "npm run build -w client",
+    "build:server": "npm run build -w server",
+    "dev:client": "npm run dev -w client",
+    "dev:server": "npm run dev -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "kill-port": "^2.0.1"
+  }
+}

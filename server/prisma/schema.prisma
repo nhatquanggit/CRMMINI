@@ -1,0 +1,335 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int        @id @default(autoincrement())
+  name              String
+  email             String     @unique
+  phone             String?
+  password          String
+  role              String     @default("SALES")
+  tokenVersion      Int        @default(0) @map("token_version")
+  assignedCustomers Customer[] @relation("AssignedCustomers")
+  ownedDeals        Deal[]     @relation("OwnedDeals")
+  createdActivities Activity[] @relation("CreatedActivities")
+  assignedTasks     Task[]     @relation("AssignedTasks")
+  createdTasks      Task[]     @relation("CreatedTasks")
+  createdQuotes     Quote[]    @relation("CreatedQuotes")
+  createdProducts   Product[]  @relation("CreatedProducts")
+  createdInvoices   Invoice[]  @relation("CreatedInvoices")
+  createdSegments   Segment[]  @relation("CreatedSegments")
+  createdSupportTickets  SupportTicket[] @relation("CreatedSupportTickets")
+  assignedSupportTickets SupportTicket[] @relation("AssignedSupportTickets")
+  ownedSalesTargets      SalesTarget[]   @relation("OwnedSalesTargets")
+  createdSalesTargets    SalesTarget[]   @relation("CreatedSalesTargets")
+  assignedAppointments   Appointment[]   @relation("AssignedAppointments")
+  createdAppointments    Appointment[]   @relation("CreatedAppointments")
+  createdAt         DateTime   @default(now()) @map("created_at")
+
+  @@map("Users")
+}
+
+model Customer {
+  id         Int       @id @default(autoincrement())
+  name       String
+  email      String    @unique
+  phone      String
+  company    String
+  status     String    @default("NEW")
+  leadSource String    @default("OTHER") @map("lead_source")
+  assignedTo Int       @map("assigned_to")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  assignee   User      @relation("AssignedCustomers", fields: [assignedTo], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  deals      Deal[]
+  activities Activity[]
+  tasks      Task[]
+  quotes     Quote[]
+  invoices   Invoice[]
+  supportTickets SupportTicket[]
+  appointments Appointment[]
+
+  @@index([assignedTo])
+  @@map("Customers")
+}
+
+model Deal {
+  id         Int      @id @default(autoincrement())
+  title      String
+  value      Decimal  @db.Decimal(18, 2)
+  stage      String   @default("LEAD")
+  customerId Int      @map("customer_id")
+  ownerId    Int      @map("owner_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  owner      User     @relation("OwnedDeals", fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  activities Activity[]
+  tasks      Task[]
+  quotes     Quote[]
+  invoices   Invoice[]
+  appointments Appointment[]
+
+  @@index([customerId])
+  @@index([ownerId])
+  @@map("Deals")
+}
+
+model Activity {
+  id         Int      @id @default(autoincrement())
+  type       String   // "NOTE", "CALL", "EMAIL", "MEETING", "OTHER"
+  content    String   @db.Text
+  customerId Int?     @map("customer_id")
+  dealId     Int?     @map("deal_id")
+  createdBy  Int      @map("created_by")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  deal       Deal?     @relation(fields: [dealId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  creator    User     @relation("CreatedActivities", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([customerId])
+  @@index([dealId])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@map("Activities")
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String   @db.Text
+  status      String   @default("TODO")  // "TODO", "IN_PROGRESS", "DONE", "CANCELLED"
+  priority    String   @default("MEDIUM") // "LOW", "MEDIUM", "HIGH", "URGENT"
+  customerId  Int?     @map("customer_id")
+  dealId      Int?     @map("deal_id")
+  assignedTo  Int      @map("assigned_to")
+  createdBy   Int      @map("created_by")
+  dueDate     DateTime @map("due_date")
+  remindAt    DateTime? @map("remind_at")
+  completedAt DateTime? @map("completed_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  deal       Deal?     @relation(fields: [dealId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  assignee   User      @relation("AssignedTasks", fields: [assignedTo], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  creator    User      @relation("CreatedTasks", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([customerId])
+  @@index([dealId])
+  @@index([assignedTo])
+  @@index([createdBy])
+  @@index([status])
+  @@index([dueDate])
+  @@index([createdAt])
+  @@map("Tasks")
+}
+
+model Quote {
+  id          Int      @id @default(autoincrement())
+  quoteNo     String   @unique @map("quote_no")
+  title       String
+  dealId      Int      @map("deal_id")
+  customerId  Int      @map("customer_id")
+  amount      Decimal  @db.Decimal(18, 2)
+  discountPct Decimal  @default(0) @map("discount_pct") @db.Decimal(5, 2)
+  taxPct      Decimal  @default(0) @map("tax_pct") @db.Decimal(5, 2)
+  finalAmount Decimal  @map("final_amount") @db.Decimal(18, 2)
+  status      String   @default("DRAFT")
+  validUntil  DateTime? @map("valid_until")
+  terms       String?  @db.Text
+  signedAt    DateTime? @map("signed_at")
+  createdBy   Int      @map("created_by")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  deal        Deal     @relation(fields: [dealId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  creator     User     @relation("CreatedQuotes", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([dealId])
+  @@index([customerId])
+  @@index([createdBy])
+  @@index([status])
+  @@index([createdAt])
+  @@map("Quotes")
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  sku         String   @unique
+  name        String
+  category    String?
+  unit        String   @default("item")
+  price       Decimal  @db.Decimal(18, 2)
+  description String?  @db.Text
+  isActive    Boolean  @default(true) @map("is_active")
+  createdBy   Int      @map("created_by")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  creator     User     @relation("CreatedProducts", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  invoiceItems InvoiceItem[]
+
+  @@index([name])
+  @@index([category])
+  @@index([isActive])
+  @@index([createdAt])
+  @@map("Products")
+}
+
+model Invoice {
+  id          Int      @id @default(autoincrement())
+  invoiceNo   String   @unique @map("invoice_no")
+  dealId      Int      @map("deal_id")
+  customerId  Int      @map("customer_id")
+  status      String   @default("DRAFT")
+  subtotal    Decimal  @db.Decimal(18, 2)
+  discountPct Decimal  @default(0) @map("discount_pct") @db.Decimal(5, 2)
+  taxPct      Decimal  @default(0) @map("tax_pct") @db.Decimal(5, 2)
+  totalAmount Decimal  @map("total_amount") @db.Decimal(18, 2)
+  dueDate     DateTime? @map("due_date")
+  paidAt      DateTime? @map("paid_at")
+  notes       String?  @db.Text
+  createdBy   Int      @map("created_by")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  deal        Deal     @relation(fields: [dealId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  creator     User     @relation("CreatedInvoices", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  items       InvoiceItem[]
+
+  @@index([dealId])
+  @@index([customerId])
+  @@index([status])
+  @@index([createdBy])
+  @@index([dueDate])
+  @@map("Invoices")
+}
+
+model InvoiceItem {
+  id          Int      @id @default(autoincrement())
+  invoiceId   Int      @map("invoice_id")
+  productId   Int      @map("product_id")
+  description String?
+  quantity    Decimal  @db.Decimal(18, 2)
+  unitPrice   Decimal  @map("unit_price") @db.Decimal(18, 2)
+  lineTotal   Decimal  @map("line_total") @db.Decimal(18, 2)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([invoiceId])
+  @@index([productId])
+  @@map("InvoiceItems")
+}
+
+model Segment {
+  id                Int      @id @default(autoincrement())
+  name              String
+  description       String?
+  statusFilter      String?  @map("status_filter")
+  sourceFilter      String?  @map("source_filter")
+  minDeals          Int?     @map("min_deals")
+  minTotalDealValue Decimal? @map("min_total_deal_value") @db.Decimal(18, 2)
+  isVip             Boolean? @map("is_vip")
+  isActive          Boolean  @default(true) @map("is_active")
+  createdBy         Int      @map("created_by")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  creator           User     @relation("CreatedSegments", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([createdBy])
+  @@index([isActive])
+  @@index([createdAt])
+  @@map("Segments")
+}
+
+model SupportTicket {
+  id          Int      @id @default(autoincrement())
+  ticketNo    String   @unique @map("ticket_no")
+  subject     String
+  description String   @db.Text
+  status      String   @default("OPEN")
+  priority    String   @default("MEDIUM")
+  category    String?
+  customerId  Int?     @map("customer_id")
+  assignedTo  Int?     @map("assigned_to")
+  createdBy   Int      @map("created_by")
+  dueDate     DateTime? @map("due_date")
+  resolvedAt  DateTime? @map("resolved_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  assignee    User?     @relation("AssignedSupportTickets", fields: [assignedTo], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  creator     User      @relation("CreatedSupportTickets", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([status])
+  @@index([priority])
+  @@index([assignedTo])
+  @@index([customerId])
+  @@index([createdAt])
+  @@map("SupportTickets")
+}
+
+model SalesTarget {
+  id          Int      @id @default(autoincrement())
+  ownerId     Int      @map("owner_id")
+  targetMonth String   @map("target_month") @db.Char(7)
+  targetValue Decimal  @map("target_value") @db.Decimal(18, 2)
+  note        String?
+  createdBy   Int      @map("created_by")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  owner       User     @relation("OwnedSalesTargets", fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  creator     User     @relation("CreatedSalesTargets", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([ownerId, targetMonth])
+  @@index([targetMonth])
+  @@index([createdBy])
+  @@map("SalesTargets")
+}
+
+model Appointment {
+  id         Int      @id @default(autoincrement())
+  title      String
+  description String? @db.Text
+  startTime  DateTime @map("start_time")
+  endTime    DateTime @map("end_time")
+  location   String?
+  customerId Int?     @map("customer_id")
+  dealId     Int?     @map("deal_id")
+  assignedTo Int      @map("assigned_to")
+  createdBy  Int      @map("created_by")
+  remindAt   DateTime? @map("remind_at")
+  status     String   @default("SCHEDULED") // "SCHEDULED", "COMPLETED", "CANCELLED"
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  deal       Deal?     @relation(fields: [dealId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  assignee   User      @relation("AssignedAppointments", fields: [assignedTo], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  creator    User      @relation("CreatedAppointments", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([customerId])
+  @@index([dealId])
+  @@index([assignedTo])
+  @@index([createdBy])
+  @@index([startTime])
+  @@index([status])
+  @@index([createdAt])
+  @@map("Appointments")
+}

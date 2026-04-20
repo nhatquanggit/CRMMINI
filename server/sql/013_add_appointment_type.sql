@@ -1,0 +1,5 @@
+IF COL_LENGTH('Appointments', 'type') IS NULL
+BEGIN
+  ALTER TABLE Appointments
+  ADD type NVARCHAR(20) NOT NULL DEFAULT 'APPOINTMENT';
+END

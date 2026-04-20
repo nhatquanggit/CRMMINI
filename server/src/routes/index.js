@@ -1,0 +1,46 @@
+import { Router } from 'express';
+import authRoutes from './auth.routes.js';
+import customerRoutes from './customer.routes.js';
+import dealRoutes from './deal.routes.js';
+import activityRoutes from './activity.routes.js';
+import taskRoutes from './task.routes.js';
+import calendarRoutes from './calendar.routes.js';
+import dashboardRoutes from './dashboard.routes.js';
+import avatarRoutes from './avatar.routes.js';
+import settingsRoutes from './settings.routes.js';
+import adminUserRoutes from './admin.user.routes.js';
+import importExportRoutes from './import-export.routes.js';
+import quoteRoutes from './quote.routes.js';
+import productRoutes from './product.routes.js';
+import invoiceRoutes from './invoice.routes.js';
+import leadSourceRoutes from './lead-source.routes.js';
+import segmentRoutes from './segment.routes.js';
+import supportTicketRoutes from './support-ticket.routes.js';
+import forecastRoutes from './forecast.routes.js';
+import chatRoutes from './chat.routes.js';
+import appointmentRoutes from './appointment.routes.js';
+
+const router = Router();
+
+router.use('/auth', authRoutes);
+router.use('/customers', customerRoutes);
+router.use('/deals', dealRoutes);
+router.use('/activities', activityRoutes);
+router.use('/tasks', taskRoutes);
+router.use('/calendar', calendarRoutes);
+router.use('/dashboard', dashboardRoutes);
+router.use('/avatar', avatarRoutes);
+router.use('/settings', settingsRoutes);
+router.use('/admin/users', adminUserRoutes);
+router.use('/', importExportRoutes);
+router.use('/quotes', quoteRoutes);
+router.use('/products', productRoutes);
+router.use('/invoices', invoiceRoutes);
+router.use('/lead-sources', leadSourceRoutes);
+router.use('/segments', segmentRoutes);
+router.use('/support-tickets', supportTicketRoutes);
+router.use('/chat', chatRoutes);
+router.use('/sales-forecasts', forecastRoutes);
+router.use('/appointments', appointmentRoutes);
+
+export default router;

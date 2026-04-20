@@ -101,7 +101,7 @@ function AppLayout() {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-4">
+        <nav className="flex-1 overflow-y-auto hide-scrollbar px-3 py-4">
           <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Menu</p>
           <div className="space-y-0.5">
             <NavLink to="/app/dashboard" className={menuClass}>

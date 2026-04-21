@@ -78,7 +78,7 @@ const getModel = () => {
   if (!genAI) {
     genAI = new GoogleGenerativeAI(apiKey);
     model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash-lite',
+      model: 'gemini-2.5-flash-lite-preview-06-17',
       systemInstruction: SYSTEM_PROMPT,
       generationConfig: {
         maxOutputTokens: 512,

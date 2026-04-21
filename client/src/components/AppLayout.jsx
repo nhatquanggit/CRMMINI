@@ -195,13 +195,7 @@ function AppLayout() {
       {/* ── Topbar ── */}
       <div className="fixed left-0 right-0 top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur-sm lg:left-60">
         <div className="flex items-center justify-between gap-3 px-4 py-3 lg:px-6">
-          <div className="relative hidden w-[380px] max-w-full lg:block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              placeholder={text.search}
-              className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15"
-            />
-          </div>
+          <div />
           <div className="ml-auto flex items-center gap-2">
             <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-2.5 py-1.5 shadow-sm">
               <div className="flex h-8 w-8 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-xs font-bold text-white shadow">

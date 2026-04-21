@@ -8,11 +8,12 @@ export const getDashboardSummary = async (currentUser) => {
   const values = adminMode ? [] : [currentUser.id];
   const cWhere = adminMode ? '' : 'WHERE assigned_to = $1';
   const dWhere = adminMode ? '' : 'WHERE owner_id = $1';
+  const rWhere = adminMode ? "WHERE stage='WON'" : "WHERE owner_id=$1 AND stage='WON'";
 
   const [cRes, dRes, rRes] = await Promise.all([
     query(`SELECT COUNT(*) AS total FROM "Customers" ${cWhere}`, values),
     query(`SELECT COUNT(*) AS total FROM "Deals" ${dWhere}`, values),
-    query(`SELECT COALESCE(SUM(value::numeric),0) AS revenue FROM "Deals" ${adminMode ? "WHERE stage='WON'" : "WHERE owner_id=$1 AND stage='WON'"}`, values)
+    query(`SELECT COALESCE(SUM(value::numeric),0) AS revenue FROM "Deals" ${rWhere}`, values)
   ]);
 
   return {
@@ -45,20 +46,31 @@ export const getDealStatusBreakdown = async (currentUser) => {
 
 export const getRecentActivities = async (currentUser, limit = 8) => {
   const adminMode = isAdmin(currentUser);
-  const values = [limit];
-  const actWhere = adminMode ? '' : `AND c.assigned_to = $${values.length + 1}`;
-  const dealWhere = adminMode ? '' : `AND d.owner_id = $${values.length + 1}`;
-  if (!adminMode) { values.push(currentUser.id); values.push(currentUser.id); }
+
+  if (adminMode) {
+    const r = await query(`
+      SELECT * FROM (
+        SELECT a.created_at, a.type, a.content AS description
+        FROM "Activities" a INNER JOIN "Customers" c ON c.id = a.customer_id
+        UNION ALL
+        SELECT d.created_at, 'DEAL_CREATED' AS type, CONCAT('Tạo deal: ', d.title, ' (', c.name, ')') AS description
+        FROM "Deals" d INNER JOIN "Customers" c ON c.id = d.customer_id
+      ) unified ORDER BY created_at DESC LIMIT $1
+    `, [limit]);
+    return r.rows.map((row) => ({ type: row.type, description: row.description, createdAt: row.created_at }));
+  }
 
   const r = await query(`
     SELECT * FROM (
       SELECT a.created_at, a.type, a.content AS description
-      FROM "Activities" a INNER JOIN "Customers" c ON c.id = a.customer_id WHERE 1=1 ${actWhere}
+      FROM "Activities" a INNER JOIN "Customers" c ON c.id = a.customer_id
+      WHERE c.assigned_to = $2
       UNION ALL
-      SELECT d.created_at, 'DEAL_CREATED' AS type, CONCAT('Tao deal: ', d.title, ' (', c.name, ')') AS description
-      FROM "Deals" d INNER JOIN "Customers" c ON c.id = d.customer_id WHERE 1=1 ${dealWhere}
+      SELECT d.created_at, 'DEAL_CREATED' AS type, CONCAT('Tạo deal: ', d.title, ' (', c.name, ')') AS description
+      FROM "Deals" d INNER JOIN "Customers" c ON c.id = d.customer_id
+      WHERE d.owner_id = $2
     ) unified ORDER BY created_at DESC LIMIT $1
-  `, values);
+  `, [limit, currentUser.id]);
 
   return r.rows.map((row) => ({ type: row.type, description: row.description, createdAt: row.created_at }));
 };

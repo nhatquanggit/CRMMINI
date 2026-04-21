@@ -15,6 +15,7 @@ import {
   Workflow
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import AIAssistantFab from '../components/AIAssistantFab';
 
 const navItems = [
   { label: 'Features', href: '#features' },
@@ -432,5 +433,6 @@ export default function Home() {
         </div>
       </footer>
     </div>
+    <AIAssistantFab />
   );
 }

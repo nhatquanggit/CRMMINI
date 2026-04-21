@@ -16,6 +16,7 @@ import {
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { loginApi, registerApi } from '../api/authApi';
 import { useAuthStore } from '../store/authStore';
+import AIAssistantFab from '../components/AIAssistantFab';
 
 const initialRegister = { name: '', email: '', password: '' };
 const initialLogin = { email: '', password: '' };
@@ -367,6 +368,7 @@ function Login() {
         </p>
       </div>
     </div>
+    <AIAssistantFab />
   );
 }
 

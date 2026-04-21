@@ -14,6 +14,7 @@ model User {
   phone             String?
   password          String
   role              String     @default("SALES")
+  isActive          Boolean    @default(true) @map("is_active")
   tokenVersion      Int        @default(0) @map("token_version")
   assignedCustomers Customer[] @relation("AssignedCustomers")
   ownedDeals        Deal[]     @relation("OwnedDeals")

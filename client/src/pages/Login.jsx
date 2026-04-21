@@ -17,7 +17,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { loginApi, registerApi } from '../api/authApi';
 import { useAuthStore } from '../store/authStore';
 
-const initialRegister = { name: '', email: '', password: '', role: 'SALES' };
+const initialRegister = { name: '', email: '', password: '' };
 const initialLogin = { email: '', password: '' };
 
 const brandStats = [
@@ -320,33 +320,7 @@ function Login() {
                   rightSlot={eyeButton}
                 />
 
-                {/* Role selector */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                    Vai trò
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {['SALES', 'ADMIN'].map((r) => (
-                      <button
-                        key={r}
-                        type="button"
-                        onClick={() => setRegisterForm((prev) => ({ ...prev, role: r }))}
-                        className={`flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition ${
-                          registerForm.role === r
-                            ? 'border-cyan-500 bg-cyan-50 text-cyan-700 ring-2 ring-cyan-500/20'
-                            : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
-                        }`}
-                      >
-                        <span className={`flex h-4 w-4 items-center justify-center rounded-full border-2 transition ${
-                          registerForm.role === r ? 'border-cyan-500 bg-cyan-500' : 'border-slate-300'
-                        }`}>
-                          {registerForm.role === r && <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />}
-                        </span>
-                        {r === 'SALES' ? 'Sales' : 'Admin'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+
 
                 <button
                   type="submit"

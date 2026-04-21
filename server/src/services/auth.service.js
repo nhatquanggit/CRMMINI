@@ -25,13 +25,14 @@ const buildAuthPayload = async (user) => {
   };
 };
 
-export const registerUser = async ({ name, email, password, role = 'SALES' }) => {
+export const registerUser = async ({ name, email, password }) => {
   const existing = await findUserByEmail(email);
   if (existing) {
     throw new ApiError(409, 'Email already in use');
   }
 
   const hashed = await bcrypt.hash(password, 10);
+  const role = 'SALES'; // Default role for new users
   const user = await createUser({ name, email, password: hashed, role });
   return buildAuthPayload(user);
 };

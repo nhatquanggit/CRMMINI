@@ -117,6 +117,7 @@ function Login() {
   );
 
   return (
+    <>
     <div className="flex min-h-screen">
       {/* ── Left Brand Panel ── */}
       <div className="relative hidden overflow-hidden lg:flex lg:w-[52%] xl:w-[55%]">
@@ -369,6 +370,7 @@ function Login() {
       </div>
     </div>
     <AIAssistantFab />
+    </>
   );
 }
 

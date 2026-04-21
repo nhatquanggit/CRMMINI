@@ -134,6 +134,7 @@ const previewHighlights = [
 
 export default function Home() {
   return (
+    <>
     <div className="relative min-h-screen overflow-x-hidden bg-[radial-gradient(80rem_45rem_at_20%_-10%,rgba(45,212,191,0.16),transparent),radial-gradient(65rem_36rem_at_90%_0%,rgba(56,189,248,0.18),transparent),linear-gradient(180deg,#fcfdff_0%,#f8fbff_100%)] text-slate-900">
       <header className="sticky top-0 z-50 border-b border-white/60 bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -434,5 +435,6 @@ export default function Home() {
       </footer>
     </div>
     <AIAssistantFab />
+    </>
   );
 }

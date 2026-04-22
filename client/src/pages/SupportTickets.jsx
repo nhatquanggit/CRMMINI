@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { CirclePlus, Headset, Pencil, Search, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -9,6 +9,8 @@ import {
 } from '../api/supportTicketApi';
 import { getCustomersApi } from '../api/customerApi';
 import { useAuthStore } from '../store/authStore';
+import { useUiStore } from '../store/uiStore';
+import { useTranslation } from '../i18n';
 
 const STATUS_OPTIONS = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
 const PRIORITY_OPTIONS = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
@@ -39,6 +41,8 @@ const emptyForm = {
 };
 
 function SupportTickets() {
+  const language = useUiStore((s) => s.language);
+  const tr = useTranslation(language);
   const user = useAuthStore((s) => s.user);
   const canManageAll = user?.role === 'ADMIN' || user?.role === 'MANAGER';
 
@@ -305,3 +309,4 @@ function SupportTickets() {
 }
 
 export default SupportTickets;
+

@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { createDealApi, getDealsApi, updateDealApi } from '../api/dealApi';
 import { getCustomersApi } from '../api/customerApi';
+import { useUiStore } from '../store/uiStore';
+import { useTranslation } from '../i18n';
 
 const STAGES = [
   { key: 'LEAD',        label: 'Khách hàng mới',       tone: 'bg-sky-500',     chip: 'bg-sky-50 text-sky-700 border-sky-200',       icon: Sprout },
@@ -36,6 +38,16 @@ const money = new Intl.NumberFormat('vi-VN', {
 });
 
 function Deals() {
+  const language = useUiStore((s) => s.language);
+  const tr = useTranslation(language);
+
+  const STAGES = [
+    { key: 'LEAD',        label: tr('stageLabelLead'),        tone: 'bg-sky-500',     chip: 'bg-sky-50 text-sky-700 border-sky-200',       icon: Sprout },
+    { key: 'CONTACTED',   label: tr('stageLabelContacted'),   tone: 'bg-cyan-500',    chip: 'bg-cyan-50 text-cyan-700 border-cyan-200',     icon: PhoneCall },
+    { key: 'NEGOTIATION', label: tr('stageLabelNegotiation'), tone: 'bg-violet-500',  chip: 'bg-violet-50 text-violet-700 border-violet-200', icon: FilePenLine },
+    { key: 'WON',         label: tr('stageLabelWon'),         tone: 'bg-emerald-500', chip: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: BadgeCheck },
+    { key: 'LOST',        label: tr('stageLabelLost'),        tone: 'bg-rose-500',    chip: 'bg-rose-50 text-rose-700 border-rose-200',     icon: CircleX },
+  ];
   const [deals, setDeals] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [form, setForm] = useState(emptyForm);
@@ -160,8 +172,8 @@ function Deals() {
             <Handshake className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Pipeline Deals</h2>
-            <p className="text-xs text-slate-500">Quản lý giao dịch theo từng giai đoạn</p>
+            <h2 className="text-lg font-bold text-slate-900">{tr('dealsTitle')}</h2>
+            <p className="text-xs text-slate-500">{tr('dealsSubtitle')}</p>
           </div>
         </div>
         <div className="flex w-full items-center gap-2 lg:w-auto">
@@ -170,7 +182,7 @@ function Deals() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Tìm deal, khách hàng, owner..."
+              placeholder={tr('searchDeals')}
               className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15"
             />
           </div>
@@ -180,20 +192,20 @@ function Deals() {
       {/* Create form */}
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-slate-900">
-          <CirclePlus className="h-4 w-4 text-blue-600" /> Tạo giao dịch mới
+          <CirclePlus className="h-4 w-4 text-blue-600" /> {tr('createNewDeal')}
         </h3>
         <form className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto]" onSubmit={onCreateDeal}>
           <input
             value={form.title}
             onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-            placeholder="Tiêu đề giao dịch"
+            placeholder={tr('dealTitle')}
             className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15"
             required
           />
           <input
             value={form.value}
             onChange={(e) => setForm((p) => ({ ...p, value: e.target.value }))}
-            placeholder="Giá trị (VND)"
+            placeholder={tr('dealValue')}
             type="number"
             className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15"
             required
@@ -204,7 +216,7 @@ function Deals() {
             className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15"
             required
           >
-            <option value="">Chọn khách hàng</option>
+            <option value="">{tr('selectCustomer')}</option>
             {customers.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
@@ -222,7 +234,7 @@ function Deals() {
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
           >
             <CirclePlus className="h-4 w-4" />
-            {saving ? 'Đang tạo...' : 'Tạo'}
+            {saving ? tr('creating') : tr('create')}
           </button>
         </form>
       </section>
@@ -234,10 +246,10 @@ function Deals() {
       {/* Pipeline stats */}
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: 'Tổng giá trị', value: money.format(boardTotal), color: 'text-blue-700', bg: 'from-blue-500 to-indigo-600' },
-          { label: 'Số giao dịch', value: totalDeals, color: 'text-violet-700', bg: 'from-violet-500 to-purple-600' },
-          { label: 'Đã chốt (WON)', value: (groupedDeals['WON'] || []).length, color: 'text-emerald-700', bg: 'from-emerald-500 to-teal-600' },
-          { label: 'Thất bại (LOST)', value: (groupedDeals['LOST'] || []).length, color: 'text-rose-700', bg: 'from-rose-500 to-pink-600' },
+          { label: tr('totalValue'), value: money.format(boardTotal), color: 'text-blue-700', bg: 'from-blue-500 to-indigo-600' },
+          { label: tr('totalDealCount'), value: totalDeals, color: 'text-violet-700', bg: 'from-violet-500 to-purple-600' },
+          { label: tr('wonDeals'), value: (groupedDeals['WON'] || []).length, color: 'text-emerald-700', bg: 'from-emerald-500 to-teal-600' },
+          { label: tr('lostDeals'), value: (groupedDeals['LOST'] || []).length, color: 'text-rose-700', bg: 'from-rose-500 to-pink-600' },
         ].map((item) => (
           <article key={item.label} className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className={`absolute right-0 top-0 h-full w-1 bg-gradient-to-b ${item.bg}`} />
@@ -307,14 +319,14 @@ function Deals() {
                           <UserCircle2 className="h-3.5 w-3.5 shrink-0" />
                           <span className="truncate">{deal.owner?.name || 'N/A'}</span>
                         </div>
-                        <p className="text-[11px] text-slate-400">{new Date(deal.createdAt).toLocaleDateString('vi-VN')}</p>
+                        <p className="text-[11px] text-slate-400">{new Date(deal.createdAt).toLocaleDateString(language === 'en' ? 'en-US' : 'vi-VN')}</p>
                       </div>
                     </div>
                   ))}
 
                   {(!filteredDeals[stage.key] || !filteredDeals[stage.key].length) && (
                     <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-8 text-center">
-                      <p className="text-xs text-slate-400">Chưa có giao dịch</p>
+                      <p className="text-xs text-slate-400">{tr('noDealsInStage')}</p>
                     </div>
                   )}
                 </div>

@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { Box, CirclePlus, PackageSearch, Pencil, Search, Tag, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { createProductApi, deleteProductApi, getProductsApi, updateProductApi } from '../api/productApi';
 import { useAuthStore } from '../store/authStore';
+import { useUiStore } from '../store/uiStore';
+import { useTranslation } from '../i18n';
 
 const emptyForm = {
   sku: '',
@@ -21,6 +23,8 @@ const money = new Intl.NumberFormat('vi-VN', {
 });
 
 function Products() {
+  const language = useUiStore((s) => s.language);
+  const tr = useTranslation(language);
   const user = useAuthStore((s) => s.user);
   const canManage = user?.role === 'ADMIN' || user?.role === 'MANAGER';
 
@@ -261,3 +265,4 @@ function Products() {
 }
 
 export default Products;
+

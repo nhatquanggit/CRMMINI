@@ -1,5 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
+import { useUiStore } from '../store/uiStore';
+import { useTranslation } from '../i18n';
 import {
   ChevronLeft,
   ChevronRight,
@@ -481,6 +483,8 @@ function AppointmentFormModal({ open, form, onChange, onSubmit, onClose, saving 
 // ─── Main Calendar Page ──────────────────────────────────────────────────────
 
 export default function Calendar() {
+  const language = useUiStore((s) => s.language);
+  const tr = useTranslation(language);
   const [viewMode, setViewMode] = useState('month'); // month | week | day
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([]);
@@ -831,3 +835,4 @@ export default function Calendar() {
     </div>
   );
 }
+

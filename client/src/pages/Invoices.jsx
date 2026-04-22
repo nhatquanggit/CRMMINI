@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { CirclePlus, FileCheck2, Receipt, RefreshCw, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useUiStore } from '../store/uiStore';
+import { useTranslation } from '../i18n';
 import { getDealsApi } from '../api/dealApi';
 import { getProductsApi } from '../api/productApi';
 import { createInvoiceApi, deleteInvoiceApi, getInvoicesApi, updateInvoiceStatusApi } from '../api/invoiceApi';
@@ -29,6 +31,8 @@ const emptyForm = {
 };
 
 function Invoices() {
+  const language = useUiStore((s) => s.language);
+  const tr = useTranslation(language);
   const [invoices, setInvoices] = useState([]);
   const [deals, setDeals] = useState([]);
   const [products, setProducts] = useState([]);
@@ -325,3 +329,4 @@ function Invoices() {
 }
 
 export default Invoices;
+

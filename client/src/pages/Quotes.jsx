@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { FileText, PlusCircle, RefreshCw, Trash2, Send, CheckCircle2, PenSquare } from 'lucide-react';
 import { toast } from 'sonner';
+import { useUiStore } from '../store/uiStore';
+import { useTranslation } from '../i18n';
 import { createQuoteApi, deleteQuoteApi, getQuotesApi, updateQuoteStatusApi } from '../api/quoteApi';
 import { getDealsApi } from '../api/dealApi';
 
@@ -27,6 +29,8 @@ const emptyForm = {
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 });
 
 export default function Quotes() {
+  const language = useUiStore((s) => s.language);
+  const tr = useTranslation(language);
   const [quotes, setQuotes] = useState([]);
   const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -208,3 +212,4 @@ export default function Quotes() {
     </div>
   );
 }
+

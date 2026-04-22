@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { MessageCircle, Send, Users } from 'lucide-react';
 import { io } from 'socket.io-client';
 import { useAuthStore } from '../store/authStore';
+import { useUiStore } from '../store/uiStore';
+import { useTranslation } from '../i18n';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
 
@@ -226,3 +228,4 @@ export default function ChatUI() {
     </div>
   );
 }
+

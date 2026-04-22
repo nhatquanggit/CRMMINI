@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { BarChart3, Globe, Megaphone, Share2, Smartphone, Users2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useUiStore } from '../store/uiStore';
+import { useTranslation } from '../i18n';
 import { getLeadSourceStatsApi } from '../api/leadSourceApi';
 
 const SOURCE_CONFIG = {
@@ -14,6 +16,8 @@ const SOURCE_CONFIG = {
 };
 
 function LeadSources() {
+  const language = useUiStore((s) => s.language);
+  const tr = useTranslation(language);
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState({ totalLeads: 0, totalConverted: 0, conversionRate: 0 });
   const [breakdown, setBreakdown] = useState([]);
@@ -91,3 +95,4 @@ function LeadSources() {
 }
 
 export default LeadSources;
+

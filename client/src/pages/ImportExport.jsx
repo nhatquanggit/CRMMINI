@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+﻿import { useRef, useState } from 'react';
 import {
   Download,
   Upload,
@@ -12,6 +12,8 @@ import {
   Info
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useUiStore } from '../store/uiStore';
+import { useTranslation } from '../i18n';
 import importExportApi from '../api/importExportApi';
 
 // ─── Helpers ─────────────────────────────────────────────────
@@ -312,6 +314,8 @@ function ImportTab() {
 // ─── Main page ────────────────────────────────────────────────
 
 export default function ImportExport() {
+  const language = useUiStore((s) => s.language);
+  const tr = useTranslation(language);
   const [tab, setTab] = useState('export');
 
   return (
@@ -351,3 +355,4 @@ export default function ImportExport() {
     </div>
   );
 }
+

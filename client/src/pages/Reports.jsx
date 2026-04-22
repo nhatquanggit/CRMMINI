@@ -25,6 +25,8 @@ import {
   YAxis
 } from 'recharts';
 import { getDashboardApi } from '../api/dashboardApi';
+import { useUiStore } from '../store/uiStore';
+import { useTranslation } from '../i18n';
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 });
 
@@ -65,6 +67,9 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 function Reports() {
+  const language = useUiStore((s) => s.language);
+  const tr = useTranslation(language);
+  const STAGE_LABELS = { LEAD: tr('stageLead'), CONTACTED: tr('stageContacted'), NEGOTIATION: tr('stageNegotiation'), WON: tr('stageWon'), LOST: tr('stageLost') };
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [data, setData] = useState({
@@ -108,10 +113,10 @@ function Reports() {
   const winRate = data.totalDeals ? Math.round((won / data.totalDeals) * 100) : 0;
 
   const kpis = [
-    { label: 'Tổng doanh thu', value: money.format(data.totalRevenue), icon: CircleDollarSign, iconColor: 'text-emerald-500', bar: 'bg-emerald-500', sub: `${won} deal đã chốt` },
-    { label: 'Tổng khách hàng', value: data.totalCustomers, icon: Users, iconColor: 'text-violet-500', bar: 'bg-violet-500', sub: 'Trong hệ thống' },
-    { label: 'Tổng giao dịch', value: data.totalDeals, icon: Handshake, iconColor: 'text-blue-500', bar: 'bg-blue-500', sub: `${won} WON / ${lost} LOST` },
-    { label: 'Win Rate', value: `${winRate}%`, icon: TrendingUp, iconColor: winRate >= 50 ? 'text-emerald-500' : 'text-rose-500', bar: winRate >= 50 ? 'bg-emerald-500' : 'bg-rose-500', sub: winRate >= 50 ? 'Hiệu suất tốt' : 'Cần cải thiện' },
+    { label: tr('totalRevenue2'), value: money.format(data.totalRevenue), icon: CircleDollarSign, iconColor: 'text-emerald-500', bar: 'bg-emerald-500', sub: `${won} ${tr('dealsWon')}` },
+    { label: tr('totalCustomers'), value: data.totalCustomers, icon: Users, iconColor: 'text-violet-500', bar: 'bg-violet-500', sub: tr('inSystem') },
+    { label: tr('totalDeals'), value: data.totalDeals, icon: Handshake, iconColor: 'text-blue-500', bar: 'bg-blue-500', sub: `${won} WON / ${lost} LOST` },
+    { label: 'Win Rate', value: `${winRate}%`, icon: TrendingUp, iconColor: winRate >= 50 ? 'text-emerald-500' : 'text-rose-500', bar: winRate >= 50 ? 'bg-emerald-500' : 'bg-rose-500', sub: winRate >= 50 ? tr('goodPerformance') : tr('needImprovement') },
   ];
 
   if (loading) {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { CirclePlus, Filter, Layers, Pencil, Search, Trash2, UsersRound } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -9,6 +9,8 @@ import {
   updateSegmentApi
 } from '../api/segmentApi';
 import { useAuthStore } from '../store/authStore';
+import { useUiStore } from '../store/uiStore';
+import { useTranslation } from '../i18n';
 
 const emptyForm = {
   name: '',
@@ -40,6 +42,8 @@ const money = new Intl.NumberFormat('vi-VN', {
 });
 
 function Segments() {
+  const language = useUiStore((s) => s.language);
+  const tr = useTranslation(language);
   const user = useAuthStore((s) => s.user);
   const canManage = user?.role === 'ADMIN' || user?.role === 'MANAGER';
 
@@ -400,3 +404,4 @@ function Segments() {
 }
 
 export default Segments;
+

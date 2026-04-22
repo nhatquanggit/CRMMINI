@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
+import { useUiStore } from '../store/uiStore';
+import { useTranslation } from '../i18n';
 import { useAdminUserStore } from '../store/adminUserStore';
 import { Navigate } from 'react-router-dom';
 import {
@@ -104,6 +106,8 @@ function ConfirmDialog({ message, onConfirm, onCancel }) {
 // ─── Main Page ────────────────────────────────────────────────
 
 export default function UsersManagement() {
+  const language = useUiStore((s) => s.language);
+  const tr = useTranslation(language);
   const currentUser = useAuthStore((s) => s.user);
 
   // Only ADMINs can access this page
@@ -348,3 +352,4 @@ export default function UsersManagement() {
     </div>
   );
 }
+

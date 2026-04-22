@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { getDashboardApi } from '../api/dashboardApi';
 import { useAuthStore } from '../store/authStore';
+import { useUiStore } from '../store/uiStore';
+import { useTranslation } from '../i18n';
 
 const money = new Intl.NumberFormat('vi-VN', {
   style: 'currency',
@@ -51,15 +53,15 @@ const activityIconByType = (type) => {
   return AlertCircle;
 };
 
-const ActivityEmptyState = () => (
+const ActivityEmptyState = ({ tr }) => (
   <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-10 text-center">
     <Activity className="h-8 w-8 text-gray-400" />
-    <p className="mt-3 text-sm font-semibold text-gray-700">Chưa có dữ liệu</p>
-    <p className="mt-1 text-sm text-gray-500">Khi có hoạt động mới, bạn sẽ thấy lịch sử tại đây.</p>
+    <p className="mt-3 text-sm font-semibold text-gray-700">{tr('noActivity')}</p>
+    <p className="mt-1 text-sm text-gray-500">{tr('noActivityDesc')}</p>
   </div>
 );
 
-const KpiCard = ({ title, value, icon: Icon, trend, color = 'text-slate-500' }) => {
+const KpiCard = ({ title, value, icon: Icon, trend, color = 'text-slate-500', vsLastMonth, noDataCompare }) => {
   const hasTrend = typeof trend === 'number';
   const isPositive = hasTrend ? trend >= 0 : true;
 
@@ -84,10 +86,10 @@ const KpiCard = ({ title, value, icon: Icon, trend, color = 'text-slate-500' }) 
               {isPositive ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
               {Math.abs(trend)}%
             </span>
-            <span className="text-xs text-slate-400">so với tháng trước</span>
+            <span className="text-xs text-slate-400">{vsLastMonth}</span>
           </>
         ) : (
-          <span className="text-xs text-slate-400">Chưa đủ dữ liệu so sánh</span>
+          <span className="text-xs text-slate-400">{noDataCompare}</span>
         )}
       </div>
     </article>
@@ -138,6 +140,16 @@ const DashboardSkeleton = () => (
 
 function Dashboard() {
   const user = useAuthStore((state) => state.user);
+  const language = useUiStore((state) => state.language);
+  const tr = useTranslation(language);
+
+  const STAGE_CONFIG_I18N = [
+    { key: 'LEAD',        label: tr('stageLead'),        icon: Sprout,       color: 'bg-sky-500',     text: 'text-sky-600',     light: 'bg-sky-50'     },
+    { key: 'CONTACTED',   label: tr('stageContacted'),   icon: PhoneCall,    color: 'bg-cyan-500',    text: 'text-cyan-600',    light: 'bg-cyan-50'    },
+    { key: 'NEGOTIATION', label: tr('stageNegotiation'), icon: Handshake,    color: 'bg-violet-500',  text: 'text-violet-600',  light: 'bg-violet-50'  },
+    { key: 'WON',         label: tr('stageWon'),         icon: CheckCircle2, color: 'bg-emerald-500', text: 'text-emerald-600', light: 'bg-emerald-50' },
+    { key: 'LOST',        label: tr('stageLost'),        icon: XCircle,      color: 'bg-rose-500',    text: 'text-rose-600',    light: 'bg-rose-50'    },
+  ];
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [data, setData] = useState({
@@ -204,23 +216,23 @@ function Dashboard() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-200">
-              {new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              {new Date().toLocaleDateString(language === 'en' ? 'en-US' : 'vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
-            <h1 className="mt-1 text-2xl font-bold">Xin chào, {user?.name || 'Admin'} 👋</h1>
-            <p className="mt-1 text-sm text-blue-100">Tổng quan hoạt động CRM hôm nay của bạn.</p>
+            <h1 className="mt-1 text-2xl font-bold">{tr('greeting')}, {user?.name || 'Admin'} 👋</h1>
+            <p className="mt-1 text-sm text-blue-100">{tr('dashboardSubtitle')}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button type="button" onClick={onRefresh}
               className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20">
-              <RefreshCw className="h-4 w-4" /> Làm mới
+              <RefreshCw className="h-4 w-4" /> {tr('refresh')}
             </button>
             <Link to="/app/customers"
               className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20">
-              <UserPlus className="h-4 w-4" /> Thêm KH
+              <UserPlus className="h-4 w-4" /> {tr('addCustomer')}
             </Link>
             <Link to="/app/deals"
               className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50">
-              <Plus className="h-4 w-4" /> Tạo deal
+              <Plus className="h-4 w-4" /> {tr('createDeal')}
             </Link>
           </div>
         </div>
@@ -234,9 +246,9 @@ function Dashboard() {
 
       {/* ── KPI ── */}
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <KpiCard title="Tổng khách hàng" value={data.totalCustomers} icon={Users} trend={customerTrend} color="text-violet-500" />
-        <KpiCard title="Tổng deals" value={data.totalDeals} icon={Handshake} trend={dealTrend} color="text-blue-500" />
-        <KpiCard title="Doanh thu" value={money.format(data.totalRevenue)} icon={CircleDollarSign} trend={revenueTrend} color="text-emerald-500" />
+        <KpiCard title={tr('totalCustomers')} value={data.totalCustomers} icon={Users} trend={customerTrend} color="text-violet-500" vsLastMonth={tr('vsLastMonth')} noDataCompare={tr('noDataCompare')} />
+        <KpiCard title={tr('totalDeals')} value={data.totalDeals} icon={Handshake} trend={dealTrend} color="text-blue-500" vsLastMonth={tr('vsLastMonth')} noDataCompare={tr('noDataCompare')} />
+        <KpiCard title={tr('revenue')} value={money.format(data.totalRevenue)} icon={CircleDollarSign} trend={revenueTrend} color="text-emerald-500" vsLastMonth={tr('vsLastMonth')} noDataCompare={tr('noDataCompare')} />
       </section>
 
       {/* ── Pipeline stages + Activity ── */}
@@ -245,11 +257,11 @@ function Dashboard() {
         {/* Pipeline stages — chiếm 1/3 */}
         <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="mb-4">
-            <h2 className="text-sm font-bold text-slate-900">Pipeline hiện tại</h2>
-            <p className="mt-0.5 text-xs text-slate-400">Số lượng deal theo từng giai đoạn</p>
+            <h2 className="text-sm font-bold text-slate-900">{tr('currentPipeline')}</h2>
+            <p className="mt-0.5 text-xs text-slate-400">{tr('dealsByStage')}</p>
           </div>
           <div className="space-y-3">
-            {STAGE_CONFIG.map((stage) => {
+            {STAGE_CONFIG_I18N.map((stage) => {
               const count = statusData.find((s) => s.status === stage.key)?.total || 0;
               const pct = data.totalDeals ? Math.round((count / data.totalDeals) * 100) : 0;
               return (
@@ -268,7 +280,7 @@ function Dashboard() {
               );
             })}
             {statusData.length === 0 && (
-              <p className="py-4 text-center text-sm text-slate-400">Chưa có deal nào</p>
+              <p className="py-4 text-center text-sm text-slate-400">{tr('noDeals')}</p>
             )}
           </div>
 
@@ -278,11 +290,11 @@ function Dashboard() {
               <p className="text-lg font-bold text-emerald-700">
                 {data.totalDeals ? Math.round(((statusData.find((s) => s.status === 'WON')?.total || 0) / data.totalDeals) * 100) : 0}%
               </p>
-              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-600">Win Rate</p>
+              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-600">{tr('winRate')}</p>
             </div>
             <div className="rounded-xl bg-slate-50 p-3 text-center">
               <p className="text-lg font-bold text-slate-700">{data.activities.length}</p>
-              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Hoạt động</p>
+              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{tr('activities')}</p>
             </div>
           </div>
         </article>
@@ -291,11 +303,11 @@ function Dashboard() {
         <article className="lg:col-span-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-bold text-slate-900">Hoạt động gần đây</h2>
-              <p className="mt-0.5 text-xs text-slate-400">Lịch sử cập nhật mới nhất của team</p>
+              <h2 className="text-sm font-bold text-slate-900">{tr('recentActivities')}</h2>
+              <p className="mt-0.5 text-xs text-slate-400">{tr('latestUpdates')}</p>
             </div>
             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
-              {data.activities.length} sự kiện
+              {data.activities.length} {tr('events')}
             </span>
           </div>
 
@@ -325,7 +337,7 @@ function Dashboard() {
               })}
             </div>
           ) : (
-            <ActivityEmptyState />
+            <ActivityEmptyState tr={tr} />
           )}
         </article>
       </section>

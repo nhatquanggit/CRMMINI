@@ -216,7 +216,7 @@ function AppLayout() {
       </div>
 
       {/* ── Main content ── */}
-      <main className="h-screen overflow-y-auto p-4 pt-[76px] lg:ml-60 lg:p-6 lg:pt-[80px]">
+      <main className="h-screen overflow-y-auto p-4 pt-[88px] lg:ml-60 lg:p-6 lg:pt-[92px]">
         <div className="mx-auto w-full max-w-[1500px]">
           <Outlet />
         </div>
